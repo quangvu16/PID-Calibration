@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="964" height="1022" viewBox="0 0 964 1022">
+<svg xmlns="http://www.w3.org/2000/svg" width="1436" height="1022" viewBox="0 0 1436 1022">
 <title>Balance Tuner Android app: the Drive and Tune PID screens</title>
-<rect width="964" height="1022" fill="#f4f5f3"/>
+<rect width="1436" height="1022" fill="#f4f5f3"/>
 <text x="40" y="34" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="20" font-weight="700" fill="#17201C">Balance Tuner (Android)</text>
-<text x="40" y="54" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" fill="#5A6861">Drive tab (left) and Tune PID tab (right), connected over USB · simulated telemetry, nudged 8 s ago</text>
+<text x="40" y="54" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" fill="#5A6861">Drive tab, Tune PID tab, and Tune PID scrolled down to auto-tune and the parameters · connected over USB · simulated telemetry</text>
 <g transform="translate(40 90)">
 <rect x="-12.0" y="-12.0" width="436.0" height="916.0" rx="44" fill="#1b1f1d"/>
 <clipPath id="screendrive"><rect x="0" y="0" width="412" height="892" rx="34"/></clipPath>
@@ -250,6 +250,143 @@
 <rect x="16.0" y="1022.5" width="251.2" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
 <rect x="16.0" y="1021.0" width="251.2" height="40.0" rx="8" fill="#FFFFFF"/>
 <text x="141.6" y="1046.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Use mean angle as balance angle</text>
+<rect x="152.0" y="880.0" width="108.0" height="4.0" rx="2" fill="#17201C" fill-opacity="0.45"/>
+</g></g>
+<g transform="translate(984 90)">
+<rect x="-12.0" y="-12.0" width="436.0" height="916.0" rx="44" fill="#1b1f1d"/>
+<clipPath id="screentune2"><rect x="0" y="0" width="412" height="892" rx="34"/></clipPath>
+<g clip-path="url(#screentune2)">
+<rect x="0.0" y="0.0" width="412.0" height="892.0" rx="0" fill="#EEF1EE"/>
+<rect x="0.0" y="0.0" width="412.0" height="32.0" rx="0" fill="#FFFFFF"/>
+<text x="24.0" y="21.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="700" fill="#17201C" text-anchor="start">10:24</text>
+<circle cx="206.0" cy="15" r="6" fill="#1b1f1d"/>
+<rect x="366.0" y="10.0" width="22.0" height="11.0" rx="2.5" fill="none" stroke="#17201C"/>
+<rect x="368.0" y="12.0" width="14.0" height="7.0" rx="1.2" fill="#17201C"/>
+<rect x="0.0" y="32.0" width="412.0" height="96.0" rx="0" fill="#FFFFFF"/>
+<text x="16.0" y="66.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="700" fill="#17201C" text-anchor="start">Balance Tuner</text>
+<text x="392.0" y="65.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#1F5FD1" text-anchor="end">Disconnect</text>
+<rect x="16.0" y="88.0" width="91.6" height="21.0" rx="10.5" fill="#DCEFE2"/>
+<text x="26.0" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#2F7D4F" text-anchor="start">● USB CH340</text>
+<rect x="113.6" y="88.0" width="59.1" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="123.6" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">remote</text>
+<rect x="178.7" y="88.0" width="91.6" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="188.7" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">tilt +0.04°</text>
+<rect x="276.3" y="88.0" width="85.1" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="286.3" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">dist 42 cm</text>
+<rect x="367.4" y="88.0" width="104.6" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="377.4" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">20 Hz · 0 bad</text>
+<text x="484.0" y="103.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Motors</text>
+<rect x="538.7" y="92.0" width="34.0" height="14.0" rx="7" fill="#1F5FD1" fill-opacity="0.5"/>
+<circle cx="564.6500000000001" cy="99" r="10" fill="#1F5FD1"/>
+<rect x="16.0" y="139.5" width="63.3" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="16.0" y="138.0" width="63.3" height="40.0" rx="8" fill="#FFFFFF"/>
+<text x="47.7" y="163.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Drive</text>
+<rect x="83.3" y="139.5" width="86.6" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="83.3" y="138.0" width="86.6" height="40.0" rx="8" fill="#DFE8FA"/>
+<text x="126.6" y="163.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#1F5FD1" text-anchor="middle">Tune PID</text>
+<clipPath id="panetune2"><rect x="0" y="178" width="412" height="714"/></clipPath>
+<g clip-path="url(#panetune2)">
+<text x="16.0" y="63.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="700" fill="#5A6861" text-anchor="start" letter-spacing="0.96">AUTO-TUNE</text>
+<rect x="16.0" y="72.0" width="380.0" height="576.0" rx="8" fill="#FFFFFF"/>
+<text x="28.0" y="96.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">The robot tries gains on its own while it balances on the</text>
+<text x="28.0" y="112.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">floor (~1 m free, USB cable slack); stand it up again</text>
+<text x="28.0" y="128.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">whenever it falls. Each trial is scored by a cost (wobble,</text>
+<text x="28.0" y="144.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">gyro, wheel drift and travel, PWM saturation; a fall is worst).</text>
+<text x="28.0" y="160.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start"></text>
+<text x="28.0" y="176.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">Pick a method in the list. ML (Bayesian): a Gaussian-process</text>
+<text x="28.0" y="192.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">model learns the cost from every trial and picks the most</text>
+<text x="28.0" y="208.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">promising next one; about 15–25 trials for two gains.</text>
+<text x="36.0" y="248.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="16" font-weight="400" fill="#17201C" text-anchor="start">ML (Bayesian)</text>
+<path d="M366 252 l10 0 l0 -10 z" fill="#5A6861"/>
+<text x="28.0" y="279.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">Gaussian process + expected improvement. Fewest trials;</text>
+<text x="28.0" y="295.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">the default.</text>
+<rect x="32.0" y="311.0" width="18.0" height="18.0" rx="2" fill="#1F5FD1"/>
+<path d="M36 320 l3.5 3.5 l7 -7.5" fill="none" stroke="#fff" stroke-width="2.2"/>
+<text x="60.0" y="325.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Angle Kp</text>
+<rect x="210.0" y="311.0" width="18.0" height="18.0" rx="2" fill="#1F5FD1"/>
+<path d="M214.0 320 l3.5 3.5 l7 -7.5" fill="none" stroke="#fff" stroke-width="2.2"/>
+<text x="238.0" y="325.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Angle Kd</text>
+<rect x="32.0" y="351.0" width="18.0" height="18.0" rx="2" fill="none" stroke="#5A6861" stroke-width="2"/>
+<text x="60.0" y="365.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Speed Kp</text>
+<rect x="210.0" y="351.0" width="18.0" height="18.0" rx="2" fill="none" stroke="#5A6861" stroke-width="2"/>
+<text x="238.0" y="365.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Speed Ki</text>
+<rect x="32.0" y="391.0" width="18.0" height="18.0" rx="2" fill="none" stroke="#5A6861" stroke-width="2"/>
+<text x="60.0" y="405.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Balance angle</text>
+<rect x="32.0" y="431.0" width="18.0" height="18.0" rx="2" fill="#1F5FD1"/>
+<path d="M36 440 l3.5 3.5 l7 -7.5" fill="none" stroke="#fff" stroke-width="2.2"/>
+<text x="60.0" y="445.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Trim the balance angle first</text>
+<rect x="32.0" y="471.0" width="18.0" height="18.0" rx="2" fill="#1F5FD1"/>
+<path d="M36 480 l3.5 3.5 l7 -7.5" fill="none" stroke="#fff" stroke-width="2.2"/>
+<text x="60.0" y="485.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Learn from past trials</text>
+<text x="28.0" y="526.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="400" fill="#5A6861" text-anchor="start">Trials</text>
+<text x="174.0" y="526.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="15" font-weight="400" fill="#17201C" text-anchor="middle">20</text>
+<line x1="146.0" y1="536" x2="202.0" y2="536" stroke="#5A6861" stroke-width="1.5"/>
+<text x="214.0" y="526.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="400" fill="#5A6861" text-anchor="start">Trial s</text>
+<text x="352.0" y="526.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="15" font-weight="400" fill="#17201C" text-anchor="middle">8</text>
+<line x1="324.0" y1="536" x2="380.0" y2="536" stroke="#5A6861" stroke-width="1.5"/>
+<text x="28.0" y="570.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="400" fill="#5A6861" text-anchor="start">Nudge</text>
+<text x="174.0" y="570.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="15" font-weight="400" fill="#17201C" text-anchor="middle">90</text>
+<line x1="146.0" y1="580" x2="202.0" y2="580" stroke="#5A6861" stroke-width="1.5"/>
+<text x="214.0" y="570.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="400" fill="#5A6861" text-anchor="start">Range ×</text>
+<text x="352.0" y="570.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="15" font-weight="400" fill="#17201C" text-anchor="middle">2</text>
+<line x1="324.0" y1="580" x2="380.0" y2="580" stroke="#5A6861" stroke-width="1.5"/>
+<rect x="28.0" y="597.5" width="127.5" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="28.0" y="596.0" width="127.5" height="40.0" rx="8" fill="#FFFFFF"/>
+<text x="91.8" y="621.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Start auto-tune</text>
+<text x="16.0" y="678.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="700" fill="#5A6861" text-anchor="start" letter-spacing="0.96">PID PARAMETERS</text>
+<rect x="16.0" y="687.0" width="380.0" height="124.0" rx="8" fill="#FFFFFF"/>
+<text x="28.0" y="712.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="15" font-weight="700" fill="#17201C" text-anchor="start">Angle Kp</text>
+<text x="384.0" y="711.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="end">robot: 23.00</text>
+<text x="28.0" y="731.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">Stiffness against tilt. Too low: falls over; too high: fast</text>
+<text x="28.0" y="747.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">buzzing oscillation.</text>
+<rect x="32.0" y="758.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="32.0" y="757.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="53.0" y="785.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">−</text>
+<text x="206.0" y="783.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="16" font-weight="400" fill="#17201C" text-anchor="middle">23.00</text>
+<line x1="92" y1="793" x2="320" y2="793" stroke="#5A6861" stroke-width="1.5"/>
+<rect x="328.0" y="758.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="328.0" y="757.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="349.0" y="785.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">+</text>
+<rect x="16.0" y="819.0" width="380.0" height="124.0" rx="8" fill="#FFFFFF"/>
+<text x="28.0" y="844.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="15" font-weight="700" fill="#17201C" text-anchor="start">Angle Kd</text>
+<text x="384.0" y="843.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="end">robot: 0.480</text>
+<text x="28.0" y="863.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">Damping from the gyro. Raise to calm the wobble; too high</text>
+<text x="28.0" y="879.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">makes it jitter.</text>
+<rect x="32.0" y="890.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="32.0" y="889.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="53.0" y="917.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">−</text>
+<text x="206.0" y="915.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="16" font-weight="400" fill="#17201C" text-anchor="middle">0.480</text>
+<line x1="92" y1="925" x2="320" y2="925" stroke="#5A6861" stroke-width="1.5"/>
+<rect x="328.0" y="890.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="328.0" y="889.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="349.0" y="917.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">+</text>
+<rect x="16.0" y="951.0" width="380.0" height="124.0" rx="8" fill="#FFFFFF"/>
+<text x="28.0" y="976.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="15" font-weight="700" fill="#17201C" text-anchor="start">Speed Kp</text>
+<text x="384.0" y="975.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="end">robot: 5.52</text>
+<text x="28.0" y="995.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">Holds the wheels still. Too low: drifts away; too high: slow</text>
+<text x="28.0" y="1011.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">rocking.</text>
+<rect x="32.0" y="1022.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="32.0" y="1021.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="53.0" y="1049.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">−</text>
+<text x="206.0" y="1047.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="16" font-weight="400" fill="#17201C" text-anchor="middle">5.52</text>
+<line x1="92" y1="1057" x2="320" y2="1057" stroke="#5A6861" stroke-width="1.5"/>
+<rect x="328.0" y="1022.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="328.0" y="1021.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="349.0" y="1049.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">+</text>
+<rect x="16.0" y="1083.0" width="380.0" height="124.0" rx="8" fill="#FFFFFF"/>
+<text x="28.0" y="1108.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="15" font-weight="700" fill="#17201C" text-anchor="start">Speed Ki</text>
+<text x="384.0" y="1107.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="end">robot: 0.1098</text>
+<text x="28.0" y="1127.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">Pulls back to the start position. The kit uses about Speed Kp</text>
+<text x="28.0" y="1143.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">/ 50.</text>
+<rect x="32.0" y="1154.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="32.0" y="1153.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="53.0" y="1181.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">−</text>
+<text x="206.0" y="1179.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="16" font-weight="400" fill="#17201C" text-anchor="middle">0.1098</text>
+<line x1="92" y1="1189" x2="320" y2="1189" stroke="#5A6861" stroke-width="1.5"/>
+<rect x="328.0" y="1154.5" width="42.0" height="44.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="328.0" y="1153.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
+<text x="349.0" y="1181.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">+</text>
+</g>
 <rect x="152.0" y="880.0" width="108.0" height="4.0" rx="2" fill="#17201C" fill-opacity="0.45"/>
 </g></g>
 </svg>
