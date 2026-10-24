@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#101512</color>
+    <color name="surface">#171E1A</color>
+    <color name="sunk">#1F2823</color>
+    <color name="fg">#E3EBE5</color>
+    <color name="muted">#9AABA1</color>
+    <color name="line">#2E3B34</color>
+    <color name="accent">#7AA5FF</color>
+    <color name="accent_soft">#1D2A45</color>
+    <color name="goal">#FBBF24</color>
+    <color name="ok">#6FCF94</color>
+    <color name="ok_soft">#1B3325</color>
+    <color name="bad">#FF9A62</color>
+    <color name="bad_soft">#3A2418</color>
+    <color name="warn">#FACC15</color>
+    <color name="warn_soft">#3A3214</color>
+    <color name="on_accent">#0B1020</color>
+    <!-- chart series -->
+    <color name="s_angle">#7AA5FF</color>
+    <color name="s_gyro">#3FD8C4</color>
+    <color name="s_aterm">#FBBF24</color>
+    <color name="s_sterm">#C79BFF</color>
+    <color name="s_turn">#A8B4C4</color>
+    <color name="s_pwml">#FF9A62</color>
+    <color name="s_pwmr">#FF8CC6</color>
+    <color name="s_raw">#6B7A72</color>
+    <color name="s_speed">#6FCF94</color>
+</resources>

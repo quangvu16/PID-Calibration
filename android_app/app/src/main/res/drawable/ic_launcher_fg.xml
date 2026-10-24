@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Two-wheeled balancing robot seen from the side, upright on its wheel. 108dp canvas, 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF" android:pathData="M46,28h16a4,4 0,0 1,4 4v30a4,4 0,0 1,-4 4h-16a4,4 0,0 1,-4 -4v-30a4,4 0,0 1,4 -4z" />
+    <path android:fillColor="#FBBF24" android:pathData="M48,34h12v4h-12z" />
+    <path android:fillColor="#0B1F44" android:pathData="M54,72m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M54,72m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+</vector>

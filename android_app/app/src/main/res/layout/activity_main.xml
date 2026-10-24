@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Header + live status, then the Drive or Tune pane. Tune rows are built in MainActivity. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@color/fg"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnConnect"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:minWidth="0dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="Connect"
+            android:textAllCaps="false"
+            android:textColor="@color/accent"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="10dp">
+
+            <TextView android:id="@+id/tvLink" style="@style/Pill" android:text="offline" />
+            <TextView android:id="@+id/tvMode" style="@style/Pill" android:text="mode –" />
+            <TextView android:id="@+id/tvAngle" style="@style/Pill" android:text="angle –" />
+            <TextView android:id="@+id/tvDistance" style="@style/Pill" android:text="dist –" />
+            <TextView android:id="@+id/tvRate" style="@style/Pill" android:text="– Hz" />
+
+            <Switch
+                android:id="@+id/swMotors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:checked="true"
+                android:text="Motors"
+                android:textColor="@color/fg"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp">
+
+        <Button android:id="@+id/btnTabDrive" style="@style/ToolButton" android:text="Drive" />
+        <Button android:id="@+id/btnTabTune" style="@style/ToolButton" android:text="Tune PID" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Drive -->
+        <ScrollView
+            android:id="@+id/paneDrive"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView style="@style/Section" android:layout_marginTop="4dp" android:text="MODE" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button android:id="@+id/btnModeRemote" style="@style/ToolButton" android:text="Remote" />
+                    <Button android:id="@+id/btnModeAvoid" style="@style/ToolButton" android:text="Avoid" />
+                    <Button android:id="@+id/btnModeFollow" style="@style/ToolButton" android:text="Follow" />
+                </LinearLayout>
+
+                <com.zyc0049.balancetuner.JoystickView
+                    android:id="@+id/joystick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <Button android:id="@+id/btnSpinCcw" style="@style/ToolButton" android:layout_height="52dp" android:text="⟲ Spin" />
+                    <Button android:id="@+id/btnHorn" style="@style/ToolButton" android:layout_height="52dp" android:text="Horn" />
+                    <Button android:id="@+id/btnSpinCw" style="@style/ToolButton" android:layout_height="52dp" android:text="Spin ⟳" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Hold the spin and horn buttons. Remote mode follows the stick; Avoid and Follow use the ultrasonic sensor."
+                    android:textColor="@color/muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Tune -->
+        <ScrollView
+            android:id="@+id/paneTune"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Per-term panels (default), or the single overlay chart below -->
+                <LinearLayout
+                    android:id="@+id/panels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.zyc0049.balancetuner.ChartView
+                        android:id="@+id/panelTilt"
+                        android:layout_width="match_parent"
+                        android:layout_height="130dp"
+                        android:layout_marginBottom="4dp" />
+                    <com.zyc0049.balancetuner.ChartView
+                        android:id="@+id/panelGyro"
+                        android:layout_width="match_parent"
+                        android:layout_height="110dp"
+                        android:layout_marginBottom="4dp" />
+                    <com.zyc0049.balancetuner.ChartView
+                        android:id="@+id/panelTerms"
+                        android:layout_width="match_parent"
+                        android:layout_height="130dp"
+                        android:layout_marginBottom="4dp" />
+                    <com.zyc0049.balancetuner.ChartView
+                        android:id="@+id/panelPwm"
+                        android:layout_width="match_parent"
+                        android:layout_height="110dp"
+                        android:layout_marginBottom="4dp" />
+                    <com.zyc0049.balancetuner.ChartView
+                        android:id="@+id/panelWheels"
+                        android:layout_width="match_parent"
+                        android:layout_height="110dp"
+                        android:layout_marginBottom="4dp" />
+                </LinearLayout>
+
+                <com.zyc0049.balancetuner.ChartView
+                    android:id="@+id/chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <HorizontalScrollView
+                    android:id="@+id/seriesScroll"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/seriesRow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Button android:id="@+id/btnView" style="@style/ToolButton" android:text="Overlay" />
+                        <Button android:id="@+id/btnPause" style="@style/ToolButton" android:text="Pause" />
+                        <Button android:id="@+id/btnClear" style="@style/ToolButton" android:text="Clear" />
+                        <Button android:id="@+id/btnRecord" style="@style/ToolButton" android:text="Record CSV" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <TextView style="@style/Section" android:text="LAST 5 SECONDS" />
+
+                <TextView
+                    android:id="@+id/tvStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded"
+                    android:backgroundTint="@color/surface"
+                    android:fontFamily="monospace"
+                    android:padding="12dp"
+                    android:text="No data yet"
+                    android:textColor="@color/fg"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvAdvice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/muted"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnBalancePoint"
+                    style="@style/ToolButton"
+                    android:layout_marginTop="8dp"
+                    android:text="Use mean angle as balance angle" />
+
+                <TextView style="@style/Section" android:text="AUTO-TUNE" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded"
+                    android:backgroundTint="@color/surface"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/autotune_hint"
+                        android:textColor="@color/muted"
+                        android:textSize="12sp" />
+
+                    <RadioGroup
+                        android:id="@+id/rgAutoMethod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rbAutoMl"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="ML (Bayesian)"
+                            android:textColor="@color/fg" />
+
+                        <RadioButton
+                            android:id="@+id/rbAutoTwiddle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Twiddle"
+                            android:textColor="@color/fg" />
+                    </RadioGroup>
+
+                    <LinearLayout
+                        android:id="@+id/autoGains"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <CheckBox
+                        android:id="@+id/cbAutoTrim"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Trim the balance angle first"
+                        android:textColor="@color/fg" />
+
+                    <CheckBox
+                        android:id="@+id/cbAutoLearn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Learn from past trials"
+                        android:textColor="@color/fg" />
+
+                    <LinearLayout
+                        android:id="@+id/autoSettings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <Button
+                        android:id="@+id/btnAutoTune"
+                        style="@style/ToolButton"
+                        android:layout_marginTop="8dp"
+                        android:text="Start auto-tune" />
+
+                    <TextView
+                        android:id="@+id/tvAutoTune"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/fg"
+                        android:textSize="12sp" />
+
+                    <com.zyc0049.balancetuner.ModelView
+                        android:id="@+id/modelView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView style="@style/Section" android:text="PID PARAMETERS" />
+
+                <LinearLayout
+                    android:id="@+id/paramList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingBottom="4dp">
+
+                        <Button android:id="@+id/btnRead" style="@style/ToolButton" android:text="Read" />
+                        <Button android:id="@+id/btnSave" style="@style/ToolButton" android:text="Save to robot" />
+                        <Button android:id="@+id/btnLoad" style="@style/ToolButton" android:text="Reload saved" />
+                        <Button android:id="@+id/btnDefaults" style="@style/ToolButton" android:text="Kit defaults" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <TextView style="@style/Section" android:text="HOW TO TUNE" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="3dp"
+                    android:text="@string/tuning_guide"
+                    android:textColor="@color/fg"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</LinearLayout>
