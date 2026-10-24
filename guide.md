@@ -38,7 +38,7 @@ Open it at **115200**. After power-on the robot prints one parameter line, then 
 per second:
 
 ```
-# text debug ('b' = binary). kp:23.00 kd:0.480 kp_speed:5.520 ki_speed:0.1098 kp_turn:10.00 kd_turn:0.090 angle0:6.31 drive_speed:30 telemetry_hz:20
+# text debug ('b' = binary). kp:40.00 kd:1.230 kp_speed:6.700 ki_speed:0.1990 kp_turn:10.00 kd_turn:0.090 angle0:6.31 drive_speed:30 telemetry_hz:20
 tilt:0.12 angle:-6.19 gyro:-1.3 A:4 S:-12 T:0.0 pwmL:-8 pwmR:-8 pulL:0 pulR:0 dist:42 motors:1 fallen:0 mode:1
 ```
 
@@ -88,7 +88,7 @@ which the robot really balances is not 0. `angle0` corrects that: the firmware b
 Set it with one of:
 
 - **Phone app:** Tune PID → Balance angle → 6.31 → *Save to robot*.
-- **Firmware default:** `PARAM_DEFAULT[]` (6th value) and `float angle0 = …` in
+- **Firmware default:** `PARAM_DEFAULT[]` (7th value) and `float angle0 = …` in
   `BalancingRobotTuner.ino`, then upload. Note: values saved to EEPROM override the firmware
   defaults. If the parameter line still shows the old value after upload, press *Defaults* then
   *Save to robot* in the app.
@@ -195,10 +195,10 @@ effect in the Serial Monitor. Tune in this order, one parameter at a time:
 | Parameter | Default | Too low | Too high |
 | --- | --- | --- | --- |
 | `angle0` | 6.31 | robot creeps one way | creeps the other way |
-| `kp` (angle) | 23 | falls over, sluggish | fast buzzing oscillation |
-| `kd` (angle) | 0.48 | wobbles back and forth | jitters, noisy motors |
-| `kp_speed` | 5.52 | drifts away | slow rocking |
-| `ki_speed` | 0.1098 | does not return to its start | slow large swings (keep ≈ `kp_speed` / 50) |
+| `kp` (angle) | 40 | falls over, sluggish | fast buzzing oscillation |
+| `kd` (angle) | 1.23 | wobbles back and forth | jitters, noisy motors |
+| `kp_speed` | 6.7 | drifts away | slow rocking |
+| `ki_speed` | 0.199 | does not return to its start | slow large swings (keep ≈ `kp_speed` / 50) |
 | `kp_turn` | 10 | turns weakly | jerky turns |
 | `kd_turn` | 0.09 | spins on its own | twitchy |
 | `drive_speed` | 30 | slow driving | falls when driving |
