@@ -120,10 +120,10 @@ an input box, and **−** / **+** buttons.
 
 | Parameter | −/+ step | Kit default | What it does |
 | --- | --- | --- | --- |
-| Angle Kp | 0.5 | 23 | Stiffness against tilt. Too low: falls over; too high: fast buzzing |
-| Angle Kd | 0.02 | 0.48 | Damping from the gyro. Raise to calm the wobble; too high makes it jitter |
-| Speed Kp | 0.2 | 5.52 | Holds the wheels still. Too low: drifts away; too high: slow rocking |
-| Speed Ki | 0.005 | 0.1098 | Pulls back to the start position. The kit uses about Speed Kp / 50 |
+| Angle Kp | 0.5 | 40 | Stiffness against tilt. Too low: falls over; too high: fast buzzing |
+| Angle Kd | 0.02 | 1.23 | Damping from the gyro. Raise to calm the wobble; too high makes it jitter |
+| Speed Kp | 0.2 | 6.7 | Holds the wheels still. Too low: drifts away; too high: slow rocking |
+| Speed Ki | 0.005 | 0.199 | Pulls back to the start position. The kit uses about Speed Kp / 50 |
 | Turn Kp | 0.5 | 10 | Turning strength when steering |
 | Turn Kd | 0.01 | 0.09 | Resists unwanted spinning (gyro z) |
 | Balance angle | 0.05 | 6.31 | Mechanical offset in degrees. Wrong value: the robot keeps creeping one way |

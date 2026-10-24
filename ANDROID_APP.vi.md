@@ -120,10 +120,10 @@ hai nút **−** / **+**.
 
 | Tham số | Bước −/+ | Mặc định của kit | Tác dụng |
 | --- | --- | --- | --- |
-| Angle Kp | 0,5 | 23 | Độ cứng chống nghiêng. Thấp: ngã; cao: rung nhanh |
-| Angle Kd | 0,02 | 0,48 | Giảm chấn từ gyro. Tăng để bớt lắc; quá cao thì giật |
-| Speed Kp | 0,2 | 5,52 | Giữ bánh đứng yên. Thấp: trôi đi; cao: lắc chậm tới lui |
-| Speed Ki | 0,005 | 0,1098 | Kéo về vị trí ban đầu. Kit dùng khoảng Speed Kp / 50 |
+| Angle Kp | 0,5 | 40 | Độ cứng chống nghiêng. Thấp: ngã; cao: rung nhanh |
+| Angle Kd | 0,02 | 1,23 | Giảm chấn từ gyro. Tăng để bớt lắc; quá cao thì giật |
+| Speed Kp | 0,2 | 6,7 | Giữ bánh đứng yên. Thấp: trôi đi; cao: lắc chậm tới lui |
+| Speed Ki | 0,005 | 0,199 | Kéo về vị trí ban đầu. Kit dùng khoảng Speed Kp / 50 |
 | Turn Kp | 0,5 | 10 | Lực rẽ khi lái |
 | Turn Kd | 0,01 | 0,09 | Chống xoay ngoài ý muốn (gyro z) |
 | Balance angle | 0,05 | 6,31 | Độ lệch cơ khí (độ). Sai thì robot cứ bò về một phía |
