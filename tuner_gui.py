@@ -16,14 +16,19 @@ Left panel: parameter editors (Enter or Set applies at once, -/+ step 10 %), Get
 (EEPROM)/Load/Defaults, motors on/off, telemetry rate, a forward-back nudge to test recovery,
 statistics of the visible window, "angle0 from mean" trim, and CSV recording.
 
-Auto-tune: tunes the ticked gains (and angle0, if ticked: searched within +-3 deg) while the robot balances on the floor (ml_tune.py), with
-either method:
-  ML        Bayesian optimisation: a Gaussian process learns the cost from every trial and
-            picks the most promising next one (fewer trials, explores the whole box)
-  Twiddle   autotune.py's coordinate descent: +-step on one gain at a time, a win is
-            re-measured before it is kept (simple, stays close to the current gains)
+Auto-tune: tunes the ticked gains (and angle0, if ticked: searched within +-3 deg) while the
+robot balances on the floor (ml_tune.py), with the method picked in the list (METHODS below):
+  ML (Bayesian)   a Gaussian process learns the cost from every trial and picks the most
+                  promising next one (fewest trials, explores the whole box)
+  Neural          the same with a deep ensemble of small neural networks as the model
+  RL              policy gradient (PGPE) over the gains, one trial per episode
+  CMA-ES, DE, PSO, Genetic   evolutionary / swarm search, populations of trials
+  Nelder-Mead, SPSA          local direct search / noisy gradient estimate
+  Twiddle         autotune.py's coordinate descent: +-step on one gain at a time, a win is
+                  re-measured before it is kept (simple, stays close to the current gains)
+  Random          Latin-hypercube baseline
 A second window shows every trial's cost and a Gaussian-process fit of the cost over the
-gains (for Twiddle only a picture of the trials, it does not steer the search).
+gains (for all but ML only a picture of the trials, it does not steer the search).
 
   python3 tuner_gui.py                 # /dev/ttyUSB0
   python3 tuner_gui.py /dev/ttyACM0 --window 20
@@ -47,7 +52,8 @@ from matplotlib.ticker import FuncFormatter, LogFormatter  # noqa: E402
 
 from autotune import (CMD_DEFAULTS, CMD_GET_PARAMS, CMD_LOAD, CMD_MOTORS, CMD_SAVE,  # noqa: E402
                       CMD_TELEM_RATE, NAMES, P_ANGLE0, P_MAX, P_MIN, PWM_SAT, Robot)
-from ml_tune import TUNABLE, BayesTuner, TwiddleTuner, from_y, read_history  # noqa: E402
+import ml_tune  # noqa: E402
+from ml_tune import TUNABLE, from_y, read_history  # noqa: E402
 from serial_monitor import TELEM_FIELDS  # noqa: E402
 
 LABELS = ["Kp (angle)", "Kd (angle)", "Kp speed", "Ki speed", "Kp turn", "Kd turn",
@@ -65,8 +71,30 @@ PLOTS = [
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ML_LOG = os.path.join(HERE, "ml_tune_log.csv")      # both methods' trials (autotune.py format)
-# method: (tuner class, default Range x: ML searches a box, twiddle steps inside autotune.py's /3..x3)
-METHODS = {"ML (Bayesian)": (BayesTuner, 2.0), "Twiddle": (TwiddleTuner, 3.0)}
+# method: (tuner class, default Range x, hint). The searches cover current / range .. x range;
+# twiddle steps inside autotune.py's /3..x3.
+METHODS = {
+    "ML (Bayesian)": (ml_tune.BayesTuner, 2.0,
+                      "Gaussian process + expected improvement. Fewest trials; the default."),
+    "Neural (deep ensemble)": (ml_tune.NeuralTuner, 2.0,
+                               "5 small neural nets learn the cost; tries the lowest confidence bound."),
+    "RL (policy gradient)": (ml_tune.PolicyGradientTuner, 2.0,
+                             "PGPE: a Gaussian policy over the gains, 2 trials per update."),
+    "CMA-ES": (ml_tune.CmaesTuner, 2.0,
+               "Evolution strategy that learns the step size and gain correlations."),
+    "Differential evolution": (ml_tune.DifferentialEvolutionTuner, 2.0,
+                               "Population search, DE/rand/1/bin. Needs 30+ trials."),
+    "Particle swarm (PSO)": (ml_tune.PsoTuner, 2.0, "Swarm search. Needs 30+ trials."),
+    "Genetic algorithm": (ml_tune.GeneticTuner, 2.0,
+                          "Selection, crossover, mutation, elitism. Needs 30+ trials."),
+    "Nelder-Mead": (ml_tune.NelderMeadTuner, 2.0,
+                    "Downhill simplex: local, no model, sensitive to noise."),
+    "SPSA": (ml_tune.SpsaTuner, 2.0,
+             "Noisy gradient from 2 trials per step (extremum-seeking style). Local."),
+    "Twiddle": (ml_tune.TwiddleTuner, 3.0,
+                "One gain at a time, wins re-measured. Simple, stays close to the start."),
+    "Random (baseline)": (ml_tune.RandomTuner, 2.0, "Latin-hypercube samples: what the others must beat."),
+}
 HISTORY_LOGS = [ML_LOG, os.path.join(HERE, "autotune_log.csv")]
 
 
@@ -100,7 +128,7 @@ class ModelWindow:
         ax.step(n, run_min, where="post", color="C2", lw=1.2, label="best trial so far")
         if d["best_pred"] is not None:
             ax.axhline(d["best_pred"], color="C2", ls="--", lw=0.8,
-                       label="model's best" if d["method"] == "ml" else "best (mean of 2)")
+                       label="best (mean of 2)" if d["method"] == "twiddle" else "model's best")
         ax.set_yscale("log")
         ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.3g}"))
         ax.yaxis.set_minor_formatter(LogFormatter(minor_thresholds=(1, 0.4)))  # only when narrow
@@ -257,12 +285,14 @@ class TunerGui:
         box = ttk.LabelFrame(parent, text="Auto-tune", padding=4)
         box.pack(fill=tk.X, pady=(6, 0))
         self.ml_method = tk.StringVar(value=next(iter(METHODS)))
-        methods = ttk.Frame(box)
+        methods = ttk.Combobox(box, textvariable=self.ml_method, values=list(METHODS),
+                               state="readonly", width=24)
         methods.grid(row=0, column=0, columnspan=4, sticky=tk.W)
-        for name in METHODS:
-            ttk.Radiobutton(methods, text=name, value=name, variable=self.ml_method,
-                            command=lambda: self.ml_range.set(METHODS[self.ml_method.get()][1])
-                            ).pack(side=tk.LEFT)
+
+        def picked(_event=None):
+            self.ml_range.set(METHODS[self.ml_method.get()][1])
+            self.ml_info.set(METHODS[self.ml_method.get()][2])
+        methods.bind("<<ComboboxSelected>>", picked)
         self.ml_use = []
         for n, i in enumerate(TUNABLE):
             var = tk.BooleanVar(value=i in TUNABLE[:2])
@@ -290,7 +320,7 @@ class TunerGui:
         self.ml_btn.grid(row=8, column=0, columnspan=2, sticky=tk.W, pady=(4, 0))
         ttk.Button(box, text="Model", command=self.show_model).grid(row=8, column=2, columnspan=2,
                                                                      pady=(4, 0))
-        self.ml_info = tk.StringVar(value="")
+        self.ml_info = tk.StringVar(value=METHODS[self.ml_method.get()][2])
         ttk.Label(box, textvariable=self.ml_info, wraplength=260, justify=tk.LEFT
                   ).grid(row=9, column=0, columnspan=4, sticky=tk.W)
 

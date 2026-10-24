@@ -75,10 +75,32 @@ recover (`--no-nudge` to stay in place). After a fall it restores the best param
 waits for you to stand the robot up. It asks before saving to EEPROM and logs every trial
 to `autotune_log.csv`. `--stages angle`, `--trial`, `--max-trials`: see `--help`.
 
-### Auto-tune in the GUI: ML or twiddle
+### Auto-tune in the GUI: eleven methods
 
-`tuner_gui.py` has an **Auto-tune** panel (`ml_tune.py`, numpy only) that runs either method
-on the ticked gains, with the same Stop, trial log, Model window and save prompt:
+`tuner_gui.py` has an **Auto-tune** panel (`ml_tune.py`, numpy only) that runs the method
+picked in its list on the ticked gains, with the same trials, cost, fall recovery, Stop, trial
+log, Model window and save prompt for all of them. Twiddle and ML (Bayesian) are described
+below; the others:
+
+| Method | Family | Notes |
+| --- | --- | --- |
+| Neural (deep ensemble) | deep learning surrogate | 5 small neural nets (32-32, tanh, Adam, numpy) learn the cost; next trial = lowest mean − 1.5 × spread |
+| RL (policy gradient) | reinforcement learning | PGPE: Gaussian policy over the gains, symmetric pairs of trials as episodes |
+| CMA-ES | evolution strategy | adapts step size and gain correlations; ~6–8 trials per generation |
+| Differential evolution | evolutionary | DE/rand/1/bin; give it 30+ trials |
+| Particle swarm (PSO) | swarm | give it 30+ trials |
+| Genetic algorithm | evolutionary | tournament, blend crossover, mutation, elitism; 30+ trials |
+| Nelder-Mead | direct search | local simplex, no model; noise can fool it |
+| SPSA | stochastic gradient | 2 trials per gradient estimate, extremum-seeking style; local |
+| Random (baseline) | – | Latin-hypercube samples; what a method must beat to be worth it |
+
+All but Twiddle report the tried set with the lowest cost *predicted* by the Model window's
+Gaussian process, as ML does, so a single lucky trial does not win. On a simulated noisy cost
+all of them moved Kp/Kd from the start to near the optimum in 25 trials; on the robot, ML
+(Bayesian) still needs the fewest. Not included: Ziegler–Nichols, Cohen–Coon and relay
+(Åström–Hägglund) tuning need the open-loop plant to be stable or a sustained oscillation,
+and a balancing robot falls under both; online RL or fuzzy gain scheduling inside the 200 Hz
+loop would need firmware changes. The app (`AutoTuner.kt`) still has only ML and Twiddle.
 
 - **Twiddle** is `autotune.py`'s search run from the GUI. It steps one gain at a time
   (start ±25 %), and a win is re-measured before it is kept. Range defaults to ×3 as in

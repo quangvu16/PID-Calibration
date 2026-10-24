@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Auto-tuning methods for tuner_gui.py: Bayesian optimisation with a Gaussian process (ML),
-and autotune.py's twiddle search, both run from the GUI (TwiddleTuner, see its docstring).
+autotune.py's twiddle search (TwiddleTuner, see its docstring), and, at the end of this file,
+a neural-network surrogate, policy-gradient RL, CMA-ES, differential evolution, PSO, a genetic
+algorithm, Nelder-Mead, SPSA and a random baseline, all sharing GuiTuner's trial loop.
 
 autotune.py walks one parameter at a time (twiddle) and re-measures every candidate that wins.
 Here a Gaussian process (GP) learns the whole cost surface cost(Kp, Kd, ...) from every trial
@@ -22,7 +24,7 @@ parameters, ~30-40 for four.
   result        the tried parameter set with the lowest *predicted* cost, not the luckiest
                 single trial
 
-numpy only (no scikit-learn). BayesTuner/TwiddleTuner.run() are meant for a thread; it reports through
+numpy only (no scikit-learn). Each tuner's run() is meant for a thread; it reports through
 post(kind, data): "status" text, "params" list, "trial" dict, "error" text, "done" dict.
 """
 import csv
@@ -417,3 +419,307 @@ class TwiddleTuner(GuiTuner):
     def choose_best(self):
         self.best_x = self.space.to_unit([self.best[i] for i in self.ids])
         self.best_pred = self.best_cost
+
+
+# ==================================================================== more search methods
+# All of them search the same unit cube as BayesTuner, score a trial as to_y(cost) (a fall is
+# simply a very high score) and report the result as BayesTuner does: the tried set with the
+# lowest *predicted* cost of the GP that is fitted for the model window anyway, so a lucky
+# trial never wins on its own. Each optimise() is written as an endless loop; f() raises
+# Budget when the trials are used up.
+
+class Budget(Exception):
+    pass
+
+
+class SearchTuner(GuiTuner):
+    choose_best = BayesTuner.choose_best
+
+    def search(self):
+        self.begin(self.factor)
+        self.d = len(self.ids)
+        x0 = self.space.to_unit([self.params[i] for i in self.ids])
+        self.x0 = np.full(self.d, 0.5) if x0 is None else x0
+        try:
+            self.optimise()
+        except Budget:
+            pass
+
+    def f(self, x):
+        """One trial at unit-cube point x; returns its score to_y(cost)."""
+        if self.k >= self.trials:
+            raise Budget
+        x = np.clip(np.asarray(x, float), 0, 1)
+        p = list(self.best)
+        for i, v in zip(self.ids, self.space.to_params(x)):
+            p[i] = v
+        return to_y(self.trial(p, x)[0])
+
+    def left(self):
+        return self.trials - self.k
+
+    def pop_size(self):
+        """Population for the evolutionary methods: 4 + 2 per gain, but at least 3 generations."""
+        return max(4, min(4 + 2 * self.d, self.left() // 3))
+
+    def first_population(self, n):
+        return np.vstack([self.x0, latin_hypercube(n - 1, self.d, self.rng)])
+
+    def optimise(self):
+        raise NotImplementedError
+
+
+class RandomTuner(SearchTuner):
+    """Baseline: Latin-hypercube random search. Any method worth using should beat it."""
+    method = "random"
+
+    def optimise(self):
+        for x in self.first_population(max(2, self.left())):
+            self.f(x)
+
+
+class NelderMeadTuner(SearchTuner):
+    """Nelder-Mead downhill simplex (1965): d+1 points; reflect the worst through the others'
+    centroid, expand on success, contract or shrink on failure. No gradient, no model; it
+    stays local and can be fooled by noise, so the best vertex is re-measured on a shrink."""
+    method = "nelder-mead"
+
+    def optimise(self):
+        d = self.d
+        pts = [self.x0]
+        for j in range(d):
+            x = self.x0.copy()
+            x[j] += 0.25 if x[j] <= 0.75 else -0.25
+            pts.append(x)
+        S = [(self.f(x), x) for x in pts]
+        while True:
+            S.sort(key=lambda t: t[0])
+            c = np.mean([x for _, x in S[:-1]], axis=0)
+            fw, xw = S[-1]
+            xr = np.clip(c + (c - xw), 0, 1)
+            fr = self.f(xr)
+            if fr < S[0][0]:
+                xe = np.clip(c + 2 * (c - xw), 0, 1)
+                fe = self.f(xe)
+                S[-1] = (fe, xe) if fe < fr else (fr, xr)
+            elif fr < S[-2][0]:
+                S[-1] = (fr, xr)
+            else:
+                xc = c + 0.5 * ((xr if fr < fw else xw) - c)
+                fc = self.f(xc)
+                if fc < min(fr, fw):
+                    S[-1] = (fc, xc)
+                else:                               # shrink towards the best, re-measured
+                    b = S[0][1]
+                    S = [((S[0][0] + self.f(b)) / 2, b)] + [
+                        (self.f(b + 0.5 * (x - b)), b + 0.5 * (x - b)) for _, x in S[1:]]
+
+
+class SpsaTuner(SearchTuner):
+    """SPSA (Spall 1992), the stochastic-approximation cousin of extremum seeking: every
+    iteration perturbs all gains at once by +-c, two trials give a gradient estimate, and a
+    gain-scheduled step goes downhill. Built for noisy costs; 2 trials per step."""
+    method = "spsa"
+
+    def optimise(self):
+        x, a, A = self.x0.copy(), None, 2
+        for k in range(10 ** 6):
+            ck = 0.12 / (k + 1) ** 0.101
+            delta = self.rng.choice([-1.0, 1.0], self.d)
+            g = (self.f(x + ck * delta) - self.f(x - ck * delta)) / (2 * ck) * delta
+            if a is None:                           # first step moves ~0.1 of the box
+                a = 0.1 * (A + 1) ** 0.602 / max(np.abs(g).max(), 1e-6)
+            step = a / (k + 1 + A) ** 0.602 * g
+            x = np.clip(x - np.clip(step, -0.15, 0.15), 0, 1)
+
+
+class GeneticTuner(SearchTuner):
+    """Real-coded genetic algorithm: tournament selection, BLX-0.3 blend crossover, Gaussian
+    mutation, the best individual carried over (elitism)."""
+    method = "genetic"
+
+    def optimise(self):
+        n = self.pop_size()
+        P = self.first_population(n)
+        F = np.array([self.f(x) for x in P])
+        while True:
+            def pick():
+                a, b = self.rng.integers(n, size=2)
+                return P[a] if F[a] < F[b] else P[b]
+            kids = [P[np.argmin(F)]]
+            while len(kids) < n:
+                p1, p2 = pick(), pick()
+                lo, hi = np.minimum(p1, p2), np.maximum(p1, p2)
+                span = hi - lo
+                child = self.rng.uniform(lo - 0.3 * span, hi + 0.3 * span)
+                mutate = self.rng.random(self.d) < max(1 / self.d, 0.3)
+                child = child + mutate * self.rng.normal(0, 0.1, self.d)
+                kids.append(np.clip(child, 0, 1))
+            elite_f = F.min()
+            P = np.array(kids)
+            F = np.array([elite_f] + [self.f(x) for x in P[1:]])
+
+
+class PsoTuner(SearchTuner):
+    """Particle swarm optimisation (Kennedy & Eberhart 1995): each particle is pulled towards
+    its own best and the swarm's best (inertia 0.6, c1 = c2 = 1.5, speed <= 0.2 per step)."""
+    method = "pso"
+
+    def optimise(self):
+        n = self.pop_size()
+        X = self.first_population(n)
+        V = self.rng.normal(0, 0.05, X.shape)
+        pb, pf = X.copy(), np.full(n, math.inf)
+        while True:
+            for j in range(n):
+                fx = self.f(X[j])
+                if fx < pf[j]:
+                    pb[j], pf[j] = X[j].copy(), fx
+            g = pb[np.argmin(pf)]
+            r1, r2 = self.rng.random(X.shape), self.rng.random(X.shape)
+            V = np.clip(0.6 * V + 1.5 * r1 * (pb - X) + 1.5 * r2 * (g - X), -0.2, 0.2)
+            X = np.clip(X + V, 0, 1)
+
+
+class DifferentialEvolutionTuner(SearchTuner):
+    """Differential evolution (Storn & Price 1997), DE/rand/1/bin, F 0.7, CR 0.9: a trial
+    vector replaces its parent only if it scores better."""
+    method = "de"
+
+    def optimise(self):
+        n = self.pop_size()
+        P = self.first_population(n)
+        F = np.array([self.f(x) for x in P])
+        while True:
+            for j in range(n):
+                a, b, c = P[self.rng.choice([i for i in range(n) if i != j], 3, replace=False)]
+                cross = self.rng.random(self.d) < 0.9
+                cross[self.rng.integers(self.d)] = True
+                u = np.clip(np.where(cross, a + 0.7 * (b - c), P[j]), 0, 1)
+                fu = self.f(u)
+                if fu < F[j]:
+                    P[j], F[j] = u, fu
+
+
+class CmaesTuner(SearchTuner):
+    """CMA-ES (Hansen), the usual (mu/mu_w, lambda) form: samples from a Gaussian whose mean,
+    step size and covariance adapt to the successful steps. sigma0 0.2 of the box."""
+    method = "cma-es"
+
+    def optimise(self):
+        d = self.d
+        lam = 4 + int(3 * math.log(d))
+        mu = lam // 2
+        w = np.log(mu + 0.5) - np.log(np.arange(1, mu + 1))
+        w /= w.sum()
+        mueff = 1 / (w ** 2).sum()
+        cc = (4 + mueff / d) / (d + 4 + 2 * mueff / d)
+        cs = (mueff + 2) / (d + mueff + 5)
+        c1 = 2 / ((d + 1.3) ** 2 + mueff)
+        cmu = min(1 - c1, 2 * (mueff - 2 + 1 / mueff) / ((d + 2) ** 2 + mueff))
+        damps = 1 + 2 * max(0, math.sqrt((mueff - 1) / (d + 1)) - 1) + cs
+        chi = math.sqrt(d) * (1 - 1 / (4 * d) + 1 / (21 * d * d))
+        m, sigma = self.x0.copy(), 0.2
+        C, pc, ps = np.eye(d), np.zeros(d), np.zeros(d)
+        for gen in range(1, 10 ** 6):
+            vals, B = np.linalg.eigh(C)
+            D = np.sqrt(np.clip(vals, 1e-12, None))
+            Z = self.rng.standard_normal((lam, d))
+            Y = Z @ (B * D).T
+            X = np.clip(m + sigma * Y, 0, 1)
+            Y = (X - m) / sigma                     # the clipped steps are the ones learned from
+            order = np.argsort([self.f(x) for x in X])[:mu]
+            yw = w @ Y[order]
+            m = m + sigma * yw
+            invsqrt = B @ np.diag(1 / D) @ B.T
+            ps = (1 - cs) * ps + math.sqrt(cs * (2 - cs) * mueff) * invsqrt @ yw
+            hs = np.linalg.norm(ps) / math.sqrt(1 - (1 - cs) ** (2 * gen)) < (1.4 + 2 / (d + 1)) * chi
+            pc = (1 - cc) * pc + hs * math.sqrt(cc * (2 - cc) * mueff) * yw
+            C = ((1 - c1 - cmu) * C + c1 * (np.outer(pc, pc) + (not hs) * cc * (2 - cc) * C)
+                 + cmu * (Y[order].T * w) @ Y[order])
+            sigma = min(0.5, sigma * math.exp(cs / damps * (np.linalg.norm(ps) / chi - 1)))
+
+
+class MlpEnsemble:
+    """Deep ensemble (Lakshminarayanan et al. 2017) of small neural networks, d -> 32 -> 32 -> 1
+    (tanh), each from its own random start, trained with Adam and weight decay in numpy. The
+    spread between members stands in for the GP's uncertainty."""
+    MEMBERS, HIDDEN, STEPS, LR, DECAY = 5, 32, 500, 0.01, 1e-3
+
+    def __init__(self, X, y, rng):
+        X, y = np.asarray(X, float), np.asarray(y, float)
+        self.mu, self.sd = y.mean(), (y.std() if y.std() > 1e-9 else 1.0)
+        z = (y - self.mu) / self.sd
+        self.nets = [self.train(X, z, rng) for _ in range(self.MEMBERS)]
+
+    def train(self, X, z, rng):
+        d, h = X.shape[1], self.HIDDEN
+        W = [rng.normal(0, 1 / math.sqrt(d), (d, h)), np.zeros(h),
+             rng.normal(0, 1 / math.sqrt(h), (h, h)), np.zeros(h),
+             rng.normal(0, 1 / math.sqrt(h), (h, 1)), np.zeros(1)]
+        m1, m2 = [np.zeros_like(p) for p in W], [np.zeros_like(p) for p in W]
+        for t in range(1, self.STEPS + 1):
+            h1 = np.tanh(X @ W[0] + W[1])
+            h2 = np.tanh(h1 @ W[2] + W[3])
+            err = (h2 @ W[4] + W[5])[:, 0] - z
+            g_out = 2 * err[:, None] / len(z)
+            g = [None] * 6
+            g[4], g[5] = h2.T @ g_out, g_out.sum(0)
+            g_h2 = (g_out @ W[4].T) * (1 - h2 ** 2)
+            g[2], g[3] = h1.T @ g_h2, g_h2.sum(0)
+            g_h1 = (g_h2 @ W[2].T) * (1 - h1 ** 2)
+            g[0], g[1] = X.T @ g_h1, g_h1.sum(0)
+            for j in range(6):
+                gj = g[j] + self.DECAY * W[j]
+                m1[j] = 0.9 * m1[j] + 0.1 * gj
+                m2[j] = 0.999 * m2[j] + 0.001 * gj * gj
+                W[j] -= self.LR * (m1[j] / (1 - 0.9 ** t)) / (np.sqrt(m2[j] / (1 - 0.999 ** t)) + 1e-8)
+        return W
+
+    def predict(self, Xs):
+        out = []
+        for W in self.nets:
+            h = np.tanh(np.tanh(Xs @ W[0] + W[1]) @ W[2] + W[3])
+            out.append((h @ W[4] + W[5])[:, 0])
+        out = np.array(out)
+        return self.mu + self.sd * out.mean(0), self.sd * out.std(0)
+
+
+class NeuralTuner(SearchTuner):
+    """Deep-learning surrogate: like BayesTuner, but the cost model is the MlpEnsemble and the
+    next trial minimises its lower confidence bound (mean - 1.5 x member spread)."""
+    method = "neural"
+
+    def optimise(self):
+        d = self.d
+        for x in self.first_population(max(1, d + 3 - len(self.X))):
+            self.f(x)
+        while True:
+            net = MlpEnsemble(self.X, self.Y, self.rng)
+            cand = self.rng.random((3000, d))
+            if self.best_x is not None:
+                cand = np.vstack([cand, np.clip(self.best_x + self.rng.normal(0, 0.07, (600, d)), 0, 1)])
+            mean, std = net.predict(cand)
+            self.f(cand[int(np.argmin(mean - 1.5 * std))])
+
+
+class PolicyGradientTuner(SearchTuner):
+    """Reinforcement learning, episodic: PGPE (Sehnke et al. 2010), policy-gradient over the
+    gains themselves. The policy is a Gaussian over the unit cube; each step plays a
+    symmetric pair mean +- eps (one trial each, reward = -score) and moves the mean towards
+    the better one and the widths towards what paid off. Online RL inside the 200 Hz loop
+    (actor-critic gain scheduling) would need firmware changes; this is the trial-level form."""
+    method = "rl"
+
+    def optimise(self):
+        mu, sig = self.x0.copy(), np.full(self.d, 0.15)
+        rewards = []
+        while True:
+            eps = self.rng.normal(0, sig)
+            r_plus, r_minus = -self.f(mu + eps), -self.f(mu - eps)
+            rewards += [r_plus, r_minus]
+            scale = max(np.std(rewards), 0.05)
+            base = np.mean(rewards[:-2]) if len(rewards) > 2 else (r_plus + r_minus) / 2
+            mu = np.clip(mu + np.clip(0.5 * eps * (r_plus - r_minus) / (2 * scale), -0.15, 0.15), 0, 1)
+            sig = np.clip(sig + 0.1 * ((r_plus + r_minus) / 2 - base) / scale * (eps ** 2 - sig ** 2) / sig,
+                          0.03, 0.3)
