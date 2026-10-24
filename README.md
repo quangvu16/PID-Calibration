@@ -17,6 +17,12 @@ it, it shares D0/D1 with the Nano's USB chip and would talk over it.
 - [`ANDROID_APP.vi.md`](ANDROID_APP.vi.md) – a step-by-step guide to the Android app, in Vietnamese.
 - [`PINOUT.md`](PINOUT.md) – which Nano pin goes to which part (motor driver, encoders, IMU, sonar, LED, buzzer).
 
+## Pinout
+
+[![ZYC0049 pinout: Arduino Nano pins and what each one connects to](pinout.svg)](PINOUT.md)
+
+Pin-by-pin tables and notes: [`PINOUT.md`](PINOUT.md).
+
 ## Flash the firmware
 
 This Nano's auto-reset does not work, so tap RESET while the upload is trying to connect.

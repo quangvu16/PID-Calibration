@@ -17,6 +17,12 @@ vì nó dùng chung chân D0/D1 với chip USB của Nano và sẽ tranh đườ
 - [`ANDROID_APP.vi.md`](ANDROID_APP.vi.md) – hướng dẫn dùng app Android: kết nối, lái, chỉnh PID bằng tay và tự chỉnh.
 - [`PINOUT.vi.md`](PINOUT.vi.md) – sơ đồ chân: chân nào của Nano nối với bộ phận nào (driver động cơ, encoder, IMU, siêu âm, LED, còi).
 
+## Sơ đồ chân
+
+[![Sơ đồ chân ZYC0049: các chân của Arduino Nano và bộ phận nối vào từng chân (hình bằng tiếng Anh)](pinout.svg)](PINOUT.vi.md)
+
+Bảng chi tiết từng chân và ghi chú: [`PINOUT.vi.md`](PINOUT.vi.md).
+
 ## Nạp firmware
 
 Chức năng tự reset của con Nano này không hoạt động, nên hãy bấm nút RESET trong lúc lệnh nạp
