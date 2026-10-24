@@ -11,7 +11,8 @@ it, it shares D0/D1 with the Nano's USB chip and would talk over it.
   documented at the top of the `.ino`. The kit's 11-byte control packet still works, so the
   kit's btcontroller app could drive it at 9600 baud (the firmware now runs at 115200).
 - `android_app/` – the Balance Tuner app (Kotlin, no libraries; its own small USB-serial
-  driver for CH340, CP210x, FT232R and CDC-ACM in `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`.
+  driver for CH340, CP210x, FT232R and CDC-ACM in `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
+  ready-built download: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
 - `serial_monitor.py` – decodes the same stream on a PC (`/dev/ttyUSB0`).
 - [`PINOUT.md`](PINOUT.md) – which Nano pin goes to which part (motor driver, encoders, IMU, sonar, LED, buzzer).
 

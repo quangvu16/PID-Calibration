@@ -11,7 +11,8 @@ vì nó dùng chung chân D0/D1 với chip USB của Nano và sẽ tranh đườ
   được mô tả ở đầu file `.ino`. Gói điều khiển 11 byte của kit vẫn dùng được, nên app
   btcontroller của kit có thể lái robot ở 9600 baud (firmware hiện chạy ở 115200).
 - `android_app/` – app Balance Tuner (Kotlin, không dùng thư viện ngoài; có driver USB-serial
-  riêng cho CH340, CP210x, FT232R và CDC-ACM trong `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`.
+  riêng cho CH340, CP210x, FT232R và CDC-ACM trong `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
+  bản build sẵn để tải: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
 - `serial_monitor.py` – giải mã cùng luồng dữ liệu đó trên máy tính (`/dev/ttyUSB0`).
 - [`PINOUT.vi.md`](PINOUT.vi.md) – sơ đồ chân: chân nào của Nano nối với bộ phận nào (driver động cơ, encoder, IMU, siêu âm, LED, còi).
 
