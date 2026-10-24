@@ -48,6 +48,10 @@ Lần build đầu tiên cũng tải các thư viện build của Android, nên 
 
 ## Sử dụng
 
+![App Balance Tuner: tab Drive với các nút chế độ và joystick, và tab Tune PID với biểu đồ trực tiếp của góc nghiêng, gyro, các thành phần vòng điều khiển, PWM và tốc độ bánh](android_app.svg)
+
+*Vẽ từ layout, màu và mã vẽ biểu đồ của app với telemetry giả lập, không phải ảnh chụp màn hình điện thoại.* Hướng dẫn từng bước: [`ANDROID_APP.vi.md`](ANDROID_APP.vi.md).
+
 Nối cổng USB của Nano với điện thoại bằng cáp/đầu chuyển OTG. Android sẽ đề nghị mở Balance
 Tuner và kết nối ngay; nếu không, hãy mở app, bấm Connect và cho phép truy cập USB. Điện thoại
 cấp nguồn cho Nano qua cáp; động cơ vẫn chạy bằng pin của robot.

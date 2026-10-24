@@ -47,6 +47,10 @@ partway. The first build also downloads the Android build libraries, so it needs
 
 ## Use
 
+![Balance Tuner app: the Drive tab with mode buttons and joystick, and the Tune PID tab with live charts of tilt, gyro, loop terms, PWM and wheel speed](android_app.svg)
+
+*Drawn from the app's layout, colours and chart code with simulated telemetry, not a phone screenshot.* Step by step: [`ANDROID_APP.md`](ANDROID_APP.md).
+
 Connect the Nano's USB port to the phone with an OTG adapter/cable. Android offers to open
 Balance Tuner and connects straight away; otherwise open the app, tap Connect and allow USB
 access. The phone powers the Nano over the cable; the motors still run from the battery.

@@ -7,6 +7,10 @@ phone, over a USB cable to the Arduino Nano. No Bluetooth and no network needed.
 
 Button and screen names are written in **bold**, exactly as they appear in the app.
 
+![Balance Tuner app: the Drive tab with mode buttons and joystick, and the Tune PID tab with live charts of tilt, gyro, loop terms, PWM and wheel speed](android_app.svg)
+
+*Drawn from the app's layout, colours and chart code with simulated telemetry, not a phone screenshot.*
+
 ## What you need
 
 - **A phone** with Android 8.0 or later and USB OTG (USB host) support.

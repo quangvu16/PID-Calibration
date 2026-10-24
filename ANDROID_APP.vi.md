@@ -8,6 +8,10 @@ thoại, qua cáp USB nối vào Arduino Nano. Không cần Bluetooth, không c�
 Tên nút và tên màn hình trong app là tiếng Anh; hướng dẫn này giữ nguyên các tên đó (in đậm) để
 bạn dễ tìm.
 
+![App Balance Tuner: tab Drive với các nút chế độ và joystick, và tab Tune PID với biểu đồ trực tiếp của góc nghiêng, gyro, các thành phần vòng điều khiển, PWM và tốc độ bánh](android_app.svg)
+
+*Vẽ từ layout, màu và mã vẽ biểu đồ của app với telemetry giả lập, không phải ảnh chụp màn hình điện thoại.*
+
 ## Cần chuẩn bị
 
 - **Điện thoại** Android 8.0 trở lên, có hỗ trợ USB OTG (USB host).
