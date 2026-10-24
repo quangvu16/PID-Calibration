@@ -4,8 +4,10 @@
     <usb-device vendor-id="6790" product-id="29987" />  <!-- 1a86:7523 CH340 -->
     <usb-device vendor-id="6790" product-id="21795" />  <!-- 1a86:5523 CH341 -->
     <usb-device vendor-id="6790" product-id="29986" />  <!-- 1a86:7522 CH340K -->
+    <usb-device vendor-id="6790" product-id="21971" />  <!-- 1a86:55d3 CH343 (ESP32-S3-DevKitC-1 v1.1 UART port) -->
     <usb-device vendor-id="4292" product-id="60000" />  <!-- 10c4:ea60 CP2102 -->
     <usb-device vendor-id="1027" product-id="24577" />  <!-- 0403:6001 FT232R -->
     <usb-device vendor-id="1027" product-id="24597" />  <!-- 0403:6015 FT-X -->
     <usb-device vendor-id="9025" />                     <!-- 2341:* Arduino (CDC-ACM) -->
+    <usb-device vendor-id="12346" />                    <!-- 303a:* Espressif native USB (ESP32-S3 USB port) -->
 </resources>

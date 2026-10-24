@@ -20,13 +20,15 @@ class UsbSerialPort private constructor(
     private val inEp: UsbEndpoint,
     private val outEp: UsbEndpoint,
     val chip: Chip,
-) {
+) : LinkPort {
     enum class Chip(val label: String) { CH34X("CH340"), CP210X("CP210x"), FTDI("FTDI"), CDC("CDC-ACM") }
 
     private val raw = ByteArray(maxOf(inEp.maxPacketSize, 64) * 4)
 
+    override val label get() = "USB ${chip.label}"
+
     /** Bytes read into [buf], 0 if nothing arrived, -1 on timeout or error (the API can't tell them apart). */
-    fun read(buf: ByteArray, timeoutMs: Int): Int {
+    override fun read(buf: ByteArray, timeoutMs: Int): Int {
         if (chip != Chip.FTDI) return conn.bulkTransfer(inEp, buf, buf.size, timeoutMs)
         // FTDI prefixes every packet with two modem status bytes.
         val n = conn.bulkTransfer(inEp, raw, minOf(raw.size, buf.size), timeoutMs)
@@ -42,11 +44,11 @@ class UsbSerialPort private constructor(
         return out
     }
 
-    fun write(data: ByteArray) {
+    override fun write(data: ByteArray) {
         if (conn.bulkTransfer(outEp, data, data.size, WRITE_TIMEOUT_MS) != data.size) throw IOException("write failed")
     }
 
-    fun close() {
+    override fun close() {
         ifaces.forEach { runCatching { conn.releaseInterface(it) } }
         conn.close()
     }

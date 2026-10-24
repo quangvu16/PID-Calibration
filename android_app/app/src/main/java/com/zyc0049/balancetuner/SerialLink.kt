@@ -10,10 +10,11 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * USB serial link to the robot's Nano (phone USB OTG -> Nano USB, 115200 baud). One thread
- * opens the port and reads, one writes: queued frames go out as they arrive and a control
- * frame (from [controlFrame]) every 50 ms, which also feeds the sketch's 1 s link watchdog.
- * The reader owns the port and closes it once both threads have stopped.
+ * The link to the robot over any [LinkPort]: the USB cable to the Nano or ESP32-S3 (115200
+ * baud), or Bluetooth LE / a WebSocket to the ESP32-S3. One thread opens the port and reads,
+ * one writes: queued frames go out as they arrive and a control frame (from [controlFrame])
+ * every 50 ms, which also feeds the sketch's 1 s link watchdog. The reader owns the port and
+ * closes it once both threads have stopped. A port's read throws when its link is gone.
  * Callbacks run on the main thread.
  */
 class SerialLink(private val usb: UsbManager, private val listener: Listener) {
@@ -35,15 +36,28 @@ class SerialLink(private val usb: UsbManager, private val listener: Listener) {
 
     private val main = Handler(Looper.getMainLooper())
     private val queue = LinkedBlockingQueue<ByteArray>()
-    @Volatile private var port: UsbSerialPort? = null
+    @Volatile private var port: LinkPort? = null
     private val session = AtomicInteger()
 
     /** The caller must already hold USB permission for [device]. */
-    fun connect(device: UsbDevice) {
+    fun connect(device: UsbDevice) = connect("USB", device.productName ?: device.deviceName) {
+        val p = UsbSerialPort.open(usb, device, BAUD)
+        // bulkTransfer returns -1 for a timeout too; only a vanished device means the cable is out.
+        object : LinkPort by p {
+            override fun read(buf: ByteArray, timeoutMs: Int): Int {
+                val n = p.read(buf, timeoutMs)
+                if (n < 0 && device.deviceName !in usb.deviceList) throw IOException("USB cable unplugged")
+                return n
+            }
+        }
+    }
+
+    /** [open] runs on the reader thread and may block; it throws IOException with a readable message. */
+    fun connect(kind: String, name: String, open: () -> LinkPort) {
         disconnect()
         val my = session.incrementAndGet()
-        post(my, State.CONNECTING, device.productName ?: device.deviceName)
-        Thread({ run(my, device) }, "usb-read").start()
+        post(my, State.CONNECTING, name)
+        Thread({ run(my, kind, open) }, "link-read").start()
     }
 
     fun disconnect() {
@@ -56,32 +70,32 @@ class SerialLink(private val usb: UsbManager, private val listener: Listener) {
         if (port != null) queue.offer(frame)
     }
 
-    private fun run(my: Int, device: UsbDevice) {
+    private fun run(my: Int, kind: String, open: () -> LinkPort) {
         val p = try {
-            UsbSerialPort.open(usb, device, BAUD)
+            open()
         } catch (e: IOException) {
-            fail(my, "Could not open USB: ${e.message}")
+            fail(my, "Could not connect over $kind: ${e.message}")
             return
         } catch (e: RuntimeException) {                     // SecurityException without permission, etc.
-            fail(my, "Could not open USB: ${e.message}")
+            fail(my, "Could not connect over $kind: ${e.message}")
             return
         }
         if (my != session.get()) { p.close(); return }
         port = p
         queue.clear()
-        post(my, State.CONNECTED, "USB ${p.chip.label}")
-        val writer = Thread({ writeLoop(my, p) }, "usb-write").apply { start() }
+        post(my, State.CONNECTED, p.label)
+        val writer = Thread({ writeLoop(my, p) }, "link-write").apply { start() }
 
         val parser = FrameParser()
         val buf = ByteArray(256)
         while (my == session.get()) {
-            val n = p.read(buf, READ_TIMEOUT_MS)
-            if (n < 0) {
-                // -1 is also a plain timeout; only a vanished device means the cable is out.
-                if (device.deviceName !in usb.deviceList) fail(my, "USB cable unplugged")
-                continue
+            val n = try {
+                p.read(buf, READ_TIMEOUT_MS)
+            } catch (e: IOException) {
+                fail(my, e.message ?: "Link lost")
+                break
             }
-            if (n == 0) continue
+            if (n <= 0) continue
             bytesIn += n
             parser.feed(buf, n) { f -> main.post { if (my == session.get()) listener.onFrame(f) } }
             badFrames = parser.badFrames
@@ -91,7 +105,7 @@ class SerialLink(private val usb: UsbManager, private val listener: Listener) {
         p.close()
     }
 
-    private fun writeLoop(my: Int, p: UsbSerialPort) {
+    private fun writeLoop(my: Int, p: LinkPort) {
         try {
             var nextControl = System.nanoTime()
             while (my == session.get()) {

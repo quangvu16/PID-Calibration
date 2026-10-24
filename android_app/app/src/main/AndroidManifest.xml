@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- The robot's Nano plugs into the phone over USB OTG; no permissions beyond the
-         per-device USB grant asked for at connect time. -->
-    <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+    <!-- USB OTG to the Nano or ESP32-S3 (a per-device grant asked for at connect time), and
+         to the ESP32-S3 also Bluetooth LE and a WebSocket over Wi-Fi. None is required, so
+         phones with any one of them can install the app. -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Bluetooth LE: Android 12+ asks for "Nearby devices"; older versions need location to scan. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
 
     <application
         android:label="@string/app_name"

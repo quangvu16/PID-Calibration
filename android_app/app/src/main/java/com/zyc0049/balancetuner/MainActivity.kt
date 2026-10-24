@@ -1,20 +1,32 @@
 package com.zyc0049.balancetuner
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.PendingIntent
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.ParcelUuid
 import android.text.InputType
 import android.view.Gravity
 import android.view.MotionEvent
@@ -24,6 +36,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
@@ -36,6 +49,7 @@ import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.net.SocketFactory
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -162,6 +176,21 @@ class MainActivity : Activity(), SerialLink.Listener {
     // ---------------------------------------------------------------- USB serial
 
     private fun connectClicked() {
+        val plugged = usb.deviceList.values.any { UsbSerialPort.chipOf(it) != null }
+        AlertDialog.Builder(this)
+            .setTitle("Connect to the robot")
+            .setItems(arrayOf(if (plugged) "USB cable" else "USB cable (nothing plugged in)",
+                "Bluetooth (ESP32-S3)", "Wi-Fi (ESP32-S3)")) { _, i ->
+                when (i) {
+                    0 -> connectUsb()
+                    1 -> withBlePermission(::scanBle)
+                    else -> connectWifi()
+                }
+            }
+            .show()
+    }
+
+    private fun connectUsb() {
         val devices = usb.deviceList.values.filter { UsbSerialPort.chipOf(it) != null }
         when (devices.size) {
             0 -> toast("Robot not found: plug the Nano's USB cable into the phone (USB OTG adapter)")
@@ -195,6 +224,102 @@ class MainActivity : Activity(), SerialLink.Listener {
         if (intent?.action != UsbManager.ACTION_USB_DEVICE_ATTACHED) return
         val device = intent.usbDevice() ?: return
         if (state == SerialLink.State.DISCONNECTED && UsbSerialPort.chipOf(device) != null) connect(device)
+    }
+
+    // ---------------------------------------------------------------- Bluetooth LE (ESP32-S3)
+
+    private var afterPermission: (() -> Unit)? = null
+
+    private fun blePermissions() =
+        if (Build.VERSION.SDK_INT >= 31) arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
+        else arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)   // BLE scans need location up to Android 11
+
+    private fun withBlePermission(then: () -> Unit) {
+        val missing = blePermissions().filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+        if (missing.isEmpty()) { then(); return }
+        afterPermission = then
+        requestPermissions(missing.toTypedArray(), REQUEST_BLE)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_BLE) return
+        val next = afterPermission
+        afterPermission = null
+        if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) next?.invoke()
+        else toast("Bluetooth permission is needed to find the robot")
+    }
+
+    /** Lists robots advertising the Nordic UART service; tapping one connects. */
+    @SuppressLint("MissingPermission")
+    private fun scanBle() {
+        val adapter = getSystemService(BluetoothManager::class.java)?.adapter
+        if (adapter == null) { toast("This phone has no Bluetooth"); return }
+        val scanner = adapter.bluetoothLeScanner
+        if (!adapter.isEnabled || scanner == null) { toast("Turn Bluetooth on first"); return }
+        val found = mutableListOf<Pair<BluetoothDevice, String>>()
+        val names = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1)
+        val callback = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: ScanResult) = runOnUiThread {
+                if (found.any { it.first.address == result.device.address }) return@runOnUiThread
+                val name = result.scanRecord?.deviceName ?: result.device.name ?: result.device.address
+                found += result.device to name
+                names.add("$name   ${result.rssi} dBm")
+            }
+
+            override fun onScanFailed(errorCode: Int) = runOnUiThread { toast("Bluetooth scan failed ($errorCode)") }
+        }
+        scanner.startScan(listOf(ScanFilter.Builder().setServiceUuid(ParcelUuid(BleUartPort.SERVICE)).build()),
+            ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(), callback)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Bluetooth: looking for BalanceTuner…")
+            .setAdapter(names) { _, i ->
+                val (device, name) = found[i]
+                link.connect("Bluetooth", name) { BleUartPort.open(this, device, name) }
+            }
+            .setNegativeButton("Cancel", null)
+            .setOnDismissListener { runCatching { scanner.stopScan(callback) } }
+            .create()
+        dialog.show()
+        ui.postDelayed({
+            if (dialog.isShowing && found.isEmpty())
+                dialog.setTitle(if (Build.VERSION.SDK_INT >= 31) "No robot found yet: is it switched on?"
+                                else "No robot found yet: is it on, and is Location on?")
+        }, BLE_HINT_MS)
+    }
+
+    // ---------------------------------------------------------------- Wi-Fi WebSocket (ESP32-S3)
+
+    private fun connectWifi() {
+        val prefs = getPreferences(MODE_PRIVATE)
+        val input = EditText(this).apply {
+            setText(prefs.getString(PREF_WIFI_HOST, WebSocketPort.DEFAULT_HOST))
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            setSingleLine()
+        }
+        val box = FrameLayout(this).apply { setPadding(dp(20), dp(4), dp(20), 0); addView(input) }
+        AlertDialog.Builder(this)
+            .setTitle("Wi-Fi: robot address")
+            .setMessage("Join the robot's Wi-Fi network first (BalanceTuner-XXXX, password balance123). " +
+                "Its address is ${WebSocketPort.DEFAULT_HOST} unless it joined your own network.")
+            .setView(box)
+            .setPositiveButton("Connect") { _, _ ->
+                val host = input.text.toString().trim().removePrefix("http://").removePrefix("ws://").substringBefore('/')
+                if (host.isEmpty()) return@setPositiveButton
+                prefs.edit().putString(PREF_WIFI_HOST, host).apply()
+                val net = wifiNetwork()
+                if (net == null) toast("The phone is not on Wi-Fi; trying anyway")
+                link.connect("Wi-Fi", host) { WebSocketPort.open(net?.socketFactory ?: SocketFactory.getDefault(), host) }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /** The Wi-Fi network even when Android routes other traffic over mobile data (the robot's has no internet). */
+    private fun wifiNetwork(): Network? {
+        val cm = getSystemService(ConnectivityManager::class.java) ?: return null
+        @Suppress("DEPRECATION")
+        return cm.allNetworks.firstOrNull { cm.getNetworkCapabilities(it)?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -723,6 +848,9 @@ class MainActivity : Activity(), SerialLink.Listener {
 
     companion object {
         private const val ACTION_USB_PERMISSION = "com.zyc0049.balancetuner.USB_PERMISSION"
+        private const val REQUEST_BLE = 1
+        private const val BLE_HINT_MS = 6000L
+        private const val PREF_WIFI_HOST = "wifi_host"
         private const val STATS_SAMPLES = 100
     }
 }
