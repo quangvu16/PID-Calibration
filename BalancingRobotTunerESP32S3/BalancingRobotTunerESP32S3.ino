@@ -17,6 +17,16 @@
 //   - The MPU6050 is read directly over Wire (Mpu_Init/Mpu_Read do what the MPU6050 library's
 //     initialize() and getMotion6() did): the old I2Cdev library does not build for the ESP32.
 //
+// Wireless (see ESP32S3.md): the same binary protocol also runs over
+//   - a WebSocket at ws://<robot>/ws (binary messages), with a control page at http://<robot>/;
+//     the robot opens its own Wi-Fi network BalanceTuner-XXXX (password WIFI_AP_PASSWORD,
+//     address 192.168.4.1), or joins WIFI_STA_SSID when that is set and reachable;
+//   - Bluetooth LE, Nordic UART Service (the ESP32-S3 has no classic Bluetooth / SPP), device
+//     name BalanceTuner-XXXX: write frames to the RX characteristic, telemetry and replies come
+//     as notifications on TX.
+// Each link has its own frame parser; replies go to the link that asked, telemetry and the
+// distance packet to every binary link. Text debug mode is for the USB serial port only.
+//
 // Serial: build with "USB CDC On Boot: Enabled" (FQBN option CDCOnBoot=cdc) and plug the phone
 // or PC into the board's "USB" port (native USB, shows up as CDC-ACM, no reset on open). With
 // CDC On Boot disabled, Serial is UART0 on the "UART" port (CP2102N or CH343 bridge) instead;
@@ -44,6 +54,15 @@
 #include <KalmanFilter.h>
 #include <EEPROM.h>
 #include <Wire.h>
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebSrv.h>
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLE2902.h>
+#include <freertos/stream_buffer.h>
+#include "web_page.h"
 
 /**********************Instantiate an object**********************/
 BalanceCar      balancecar;
@@ -111,6 +130,7 @@ enum COLOR
 #define KEY_BINARY      'b'
 
 #define CONTROL_TIMEOUT_MS 1000                             // joystick/horn reset when no control frame arrives
+                                                            // (from any link: a dropped Wi-Fi or BLE client stops the robot)
 #define SONAR_TIMEOUT_US   25000                            // no echo within this: about 4 m, reported as 0
 /*************************END**************************/
 
@@ -149,6 +169,37 @@ struct Telemetry                                            // one telemetry tic
 };
 /*************************END**************************/
 
+/***********************Wireless***********************/
+#define WIRELESS_NAME       "BalanceTuner"                  // + "-XXXX" from the MAC: Wi-Fi network, BLE name
+#define WIFI_AP_PASSWORD    "balance123"                    // 8+ characters; the robot's own network
+#define WIFI_STA_SSID       ""                              // set to join an existing network instead
+#define WIFI_STA_PASSWORD   ""
+#define WIFI_STA_WAIT_MS    10000                           // then fall back to the robot's own network
+#define MDNS_NAME           "balancetuner"                  // http://balancetuner.local/ where mDNS works
+#define WS_MAX_CLIENTS      2
+#define NUS_SERVICE         "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+#define NUS_RX              "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"  // client writes
+#define NUS_TX              "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"  // robot notifies
+
+enum LINK_ID { LINK_SERIAL = 0, LINK_BLE, LINK_WS, LINK_COUNT };
+struct Link                                                 // one frame parser per link
+{
+    byte pkt[11];
+    byte len;
+    byte want;
+};
+Link links[LINK_COUNT];
+StreamBufferHandle_t rxBuffer[LINK_COUNT];                  // BLE and WebSocket bytes, drained by loop()
+
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+BLECharacteristic *bleTx = nullptr;
+volatile bool bleConnected = false;
+volatile uint16_t bleMtu = 23;
+String wirelessName;
+String wifiInfo;
+/*************************END**************************/
+
 /***********************Concurrency***********************/
 // BalanceTask and loop() run on core 1, BalanceTask at the higher priority, so loop() never
 // runs in the middle of a control step. LOCK keeps the balance task (and the encoder
@@ -165,9 +216,6 @@ portMUX_TYPE lock = portMUX_INITIALIZER_UNLOCKED;
 
 /***********************Variable definitions***********************/
 byte TX_package[4] = {0xA5, 0, 0, 0x5A};                    // Packet header(0xA5) + original data (n*byte) + inspection(1byte) + Package the tail(0x5A)
-byte RX_package[11] = {0};
-byte RX_len = 0;                                            // bytes of the frame received so far
-byte RX_want = 0;                                           // expected length of the current frame
 unsigned long lastControlMs = 0;
 unsigned long lastDistanceTxMs = 0;
 unsigned long lastTelemetryMs = 0;
@@ -360,6 +408,7 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(MOTOR2), Code_right, CHANGE);
     xTaskCreatePinnedToCore(BalanceTask, "balance", 4096, nullptr, BALANCE_PRIO, nullptr, BALANCE_CORE);
     xTaskCreatePinnedToCore(SonarTask, "sonar", 2048, nullptr, SONAR_PRIO, nullptr, SONAR_CORE);
+    Wireless_Begin();                                       // after the balance task: joining Wi-Fi can take seconds
     Print_Params();                                         // starts in text debug mode
 }
 
@@ -389,7 +438,108 @@ void loop()
     {
         mode3();
     }
+    static unsigned long lastCleanupMs = 0;
+    if (millis() - lastCleanupMs > 1000)
+    {
+        lastCleanupMs = millis();
+        ws.cleanupClients(WS_MAX_CLIENTS);
+    }
     delay(1);                                               // let the idle task feed the watchdog
+}
+
+/*********************************************************
+Wireless: Wi-Fi + WebSocket + control page, and BLE Nordic UART. The callbacks run in the
+Wi-Fi and BLE tasks, so they only queue bytes; loop() parses them.
+*********************************************************/
+void On_Ws_Event(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+                 void *arg, uint8_t *data, size_t len)
+{
+    if (type == WS_EVT_CONNECT)
+    {
+        if (server->count() > WS_MAX_CLIENTS) client->close();
+    }
+    else if (type == WS_EVT_DATA)
+    {
+        xStreamBufferSend(rxBuffer[LINK_WS], data, len, 0);
+    }
+}
+
+class BleServerEvents : public BLEServerCallbacks
+{
+    void onConnect(BLEServer *s) { bleConnected = true; }
+    void onDisconnect(BLEServer *s)
+    {
+        bleConnected = false;
+        bleMtu = 23;
+        s->startAdvertising();                              // let the next client find the robot
+    }
+    void onMtuChanged(BLEServer *s, esp_ble_gatts_cb_param_t *param) { bleMtu = param->mtu.mtu; }
+};
+
+class BleRxEvents : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *c)
+    {
+        std::string v = c->getValue();
+        xStreamBufferSend(rxBuffer[LINK_BLE], v.data(), v.size(), 0);
+    }
+};
+
+void Wireless_Begin()
+{
+    for (byte link = LINK_BLE; link < LINK_COUNT; link++) rxBuffer[link] = xStreamBufferCreate(512, 1);
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+    char suffix[6];
+    snprintf(suffix, sizeof(suffix), "-%02X%02X", mac[4], mac[5]);
+    wirelessName = String(WIRELESS_NAME) + suffix;
+
+    // Wi-Fi: join WIFI_STA_SSID if set, else (or when that fails) the robot's own network
+    bool joined = false;
+    if (strlen(WIFI_STA_SSID))
+    {
+        WiFi.mode(WIFI_STA);
+        WiFi.setHostname(wirelessName.c_str());
+        WiFi.begin(WIFI_STA_SSID, WIFI_STA_PASSWORD);
+        unsigned long t0 = millis();
+        while (WiFi.status() != WL_CONNECTED && millis() - t0 < WIFI_STA_WAIT_MS) delay(100);
+        joined = WiFi.status() == WL_CONNECTED;
+    }
+    if (joined)
+    {
+        wifiInfo = String("joined ") + WIFI_STA_SSID + ", http://" + WiFi.localIP().toString() + "/";
+    }
+    else
+    {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(wirelessName.c_str(), WIFI_AP_PASSWORD);
+        wifiInfo = String("network ") + wirelessName + " (password " + WIFI_AP_PASSWORD + "), http://" +
+                   WiFi.softAPIP().toString() + "/";
+    }
+    WiFi.setSleep(false);                                   // modem sleep adds 100+ ms of latency
+    if (MDNS.begin(MDNS_NAME)) MDNS.addService("http", "tcp", 80);
+    ws.onEvent(On_Ws_Event);
+    server.addHandler(&ws);
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *r) { r->send_P(200, "text/html", WEB_PAGE); });
+    server.begin();
+
+    // BLE: Nordic UART Service
+    BLEDevice::init(wirelessName.c_str());
+    BLEDevice::setMTU(185);                                 // a telemetry frame (28 bytes) in one notification
+    BLEServer *bs = BLEDevice::createServer();
+    bs->setCallbacks(new BleServerEvents());
+    BLEService *nus = bs->createService(NUS_SERVICE);
+    bleTx = nus->createCharacteristic(NUS_TX, BLECharacteristic::PROPERTY_NOTIFY);
+    bleTx->addDescriptor(new BLE2902());
+    BLECharacteristic *rx = nus->createCharacteristic(NUS_RX, BLECharacteristic::PROPERTY_WRITE |
+                                                              BLECharacteristic::PROPERTY_WRITE_NR);
+    rx->setCallbacks(new BleRxEvents());
+    nus->start();
+    BLEAdvertising *adv = BLEDevice::getAdvertising();
+    adv->addServiceUUID(NUS_SERVICE);
+    adv->setScanResponse(true);
+    BLEDevice::startAdvertising();
+    wifiInfo += String(", BLE ") + wirelessName;
 }
 
 
@@ -637,65 +787,110 @@ bool Save_Params()
 }
 
 /*********************************************************
-Function name: RX_Information()
-Function Function: Collects frames byte by byte without blocking; see the protocol
-at the top of the file.
+Links: write to one, broadcast to all binary ones
 *********************************************************/
-void RX_Information(void)
+void Link_Write(byte link, const byte *b, size_t n)
 {
-    while (Serial.available() > 0)
+    if (link == LINK_SERIAL)
     {
-        byte c = Serial.read();
-        if (RX_len == 0)
+        Serial.write(b, n);
+    }
+    else if (link == LINK_BLE)
+    {
+        if (!bleConnected || !bleTx) return;
+        size_t chunk = bleMtu > 23 ? bleMtu - 3 : 20;      // one notification carries MTU - 3 bytes
+        for (size_t i = 0; i < n; i += chunk)
         {
-            if (c == HDR_CONTROL)          RX_want = 11;
-            else if (c == HDR_SET_PARAM)   RX_want = 8;
-            else if (c == HDR_COMMAND)     RX_want = 5;
-            else
-            {
-                if (c == KEY_TEXT_DEBUG && !textDebug) { textDebug = true; Print_Params(); }
-                else if (c == KEY_BINARY)          textDebug = false;
-                continue;                                   // not a header: keep hunting
-            }
+            bleTx->setValue((uint8_t *)b + i, min(chunk, n - i));
+            bleTx->notify();
         }
-        RX_package[RX_len++] = c;
-        if (RX_len < RX_want) continue;
-        RX_len = 0;
-        if (RX_package[RX_want - 1] != TAIL) continue;      // bad frame: drop it and resync
-
-        if (RX_package[0] == HDR_CONTROL)
-        {
-            textDebug = false;                              // a binary client (the app) is talking
-            Handle_Control();
-            continue;
-        }
-        byte sum = 0;
-        for (byte i = 1; i < RX_want - 2; i++) sum += RX_package[i];
-        if (sum != RX_package[RX_want - 2]) continue;
-        textDebug = false;
-        if (RX_package[0] == HDR_SET_PARAM)
-        {
-            float v;
-            memcpy(&v, &RX_package[2], 4);
-            Set_Param(RX_package[1], v);
-            Send_Param(RX_package[1]);                      // echo the value actually applied
-        }
-        else
-        {
-            Handle_Command(RX_package[1], RX_package[2]);
-        }
+    }
+    else if (link == LINK_WS)
+    {
+        if (ws.count()) ws.binaryAll((uint8_t *)b, n);
     }
 }
 
-void Handle_Control()
+// Telemetry and the distance packet: the serial port only in binary mode.
+void Broadcast(const byte *b, size_t n)
+{
+    if (!textDebug) Link_Write(LINK_SERIAL, b, n);
+    Link_Write(LINK_BLE, b, n);
+    Link_Write(LINK_WS, b, n);
+}
+
+/*********************************************************
+Function name: RX_Information()
+Function Function: Collects frames byte by byte without blocking, from the serial port and
+from what the BLE and WebSocket callbacks queued; see the protocol at the top of the file.
+*********************************************************/
+void RX_Information(void)
+{
+    while (Serial.available() > 0) RX_Byte(LINK_SERIAL, Serial.read());
+    byte buf[64];
+    for (byte link = LINK_BLE; link < LINK_COUNT; link++)
+    {
+        size_t n;
+        while ((n = xStreamBufferReceive(rxBuffer[link], buf, sizeof(buf), 0)) > 0)
+            for (size_t i = 0; i < n; i++) RX_Byte(link, buf[i]);
+    }
+}
+
+void RX_Byte(byte link, byte c)
+{
+    Link &L = links[link];
+    if (L.len == 0)
+    {
+        if (c == HDR_CONTROL)          L.want = 11;
+        else if (c == HDR_SET_PARAM)   L.want = 8;
+        else if (c == HDR_COMMAND)     L.want = 5;
+        else
+        {
+            if (link == LINK_SERIAL)                        // terminal keys: the serial port only
+            {
+                if (c == KEY_TEXT_DEBUG && !textDebug) { textDebug = true; Print_Params(); }
+                else if (c == KEY_BINARY)          textDebug = false;
+            }
+            return;                                         // not a header: keep hunting
+        }
+    }
+    L.pkt[L.len++] = c;
+    if (L.len < L.want) return;
+    L.len = 0;
+    if (L.pkt[L.want - 1] != TAIL) return;                  // bad frame: drop it and resync
+
+    if (L.pkt[0] == HDR_CONTROL)
+    {
+        if (link == LINK_SERIAL) textDebug = false;         // a binary client (the app) is talking
+        Handle_Control(L.pkt);
+        return;
+    }
+    byte sum = 0;
+    for (byte i = 1; i < L.want - 2; i++) sum += L.pkt[i];
+    if (sum != L.pkt[L.want - 2]) return;
+    if (link == LINK_SERIAL) textDebug = false;
+    if (L.pkt[0] == HDR_SET_PARAM)
+    {
+        float v;
+        memcpy(&v, &L.pkt[2], 4);
+        Set_Param(L.pkt[1], v);
+        Send_Param(link, L.pkt[1]);                         // echo the value actually applied
+    }
+    else
+    {
+        Handle_Command(link, L.pkt[1], L.pkt[2]);
+    }
+}
+
+void Handle_Control(const byte *pkt)
 {
     lastControlMs = millis();
-    x_axis = (int8_t)RX_package[1];                         // The X-axis value
-    y_axis = (int8_t)RX_package[2];                         // The Y-axis value
-    klaxon = RX_package[3];                                 // the horn
-    N_Button = RX_package[4];                               // Rotate counterclockwise
-    S_Button = RX_package[5];                               // Rotate clockwise
-    byte want = RX_package[6] ? 1 : RX_package[7] ? 2 : RX_package[8] ? 3 : 0;
+    x_axis = (int8_t)pkt[1];                                // The X-axis value
+    y_axis = (int8_t)pkt[2];                                // The Y-axis value
+    klaxon = pkt[3];                                        // the horn
+    N_Button = pkt[4];                                      // Rotate counterclockwise
+    S_Button = pkt[5];                                      // Rotate clockwise
+    byte want = pkt[6] ? 1 : pkt[7] ? 2 : pkt[8] ? 3 : 0;
     if (want && want != mode)                               // only act on a mode change
     {
         LOCK();
@@ -707,20 +902,20 @@ void Handle_Control()
     }
 }
 
-void Handle_Command(byte cmd, byte arg)
+void Handle_Command(byte link, byte cmd, byte arg)
 {
     byte ok = 1;
     switch (cmd)
     {
     case CMD_GET_PARAMS:
-        for (byte i = 0; i < P_COUNT; i++) Send_Param(i);
+        for (byte i = 0; i < P_COUNT; i++) Send_Param(link, i);
         break;
     case CMD_SAVE:
         ok = Save_Params();
         break;
     case CMD_DEFAULTS:
         Default_Params();
-        for (byte i = 0; i < P_COUNT; i++) Send_Param(i);
+        for (byte i = 0; i < P_COUNT; i++) Send_Param(link, i);
         break;
     case CMD_MOTORS:
         motorsOn = arg != 0;
@@ -731,16 +926,16 @@ void Handle_Command(byte cmd, byte arg)
         break;
     case CMD_LOAD:
         ok = Load_Params();
-        for (byte i = 0; i < P_COUNT; i++) Send_Param(i);
+        for (byte i = 0; i < P_COUNT; i++) Send_Param(link, i);
         break;
     default:
         ok = 0;
     }
     byte ack[5] = {HDR_ACK, cmd, ok, (byte)(cmd + ok), TAIL};
-    Serial.write(ack, 5);
+    Link_Write(link, ack, 5);
 }
 
-void Send_Param(byte id)
+void Send_Param(byte link, byte id)
 {
     if (id >= P_COUNT) return;
     byte f[8] = {HDR_PARAM, id};
@@ -750,7 +945,7 @@ void Send_Param(byte id)
     for (byte i = 1; i < 6; i++) sum += f[i];
     f[6] = sum;
     f[7] = TAIL;
-    Serial.write(f, 8);
+    Link_Write(link, f, 8);
 }
 
 /*********************************************************
@@ -762,21 +957,21 @@ a text debug line ~100 bytes (2 kB/s at 20 Hz).
 void TX_Information(void)
 {
     unsigned long now = millis();
-    if (!textDebug && now - lastDistanceTxMs >= 100)
+    if (now - lastDistanceTxMs >= 100)
     {
         lastDistanceTxMs = now;
         byte dat = UT_distance > 127 ? 127 : UT_distance;
         TX_package[1] = dat;
         TX_package[2] = dat;                                // Check the sum
-        Serial.write(TX_package, 4);
+        Broadcast(TX_package, 4);
     }
     if (telemetryHz && now - lastTelemetryMs >= 1000 / telemetryHz)
     {
         lastTelemetryMs = now;
         Telemetry t;
         Take_Telemetry(t);
-        if (textDebug) Print_Telemetry(t);
-        else           Send_Telemetry(now, t);
+        if (textDebug) Print_Telemetry(t);                 // the serial port; wireless links still get binary
+        Send_Telemetry(now, t);
     }
 }
 
@@ -837,7 +1032,7 @@ void Send_Telemetry(unsigned long now, const Telemetry &t)
     for (byte i = 0; i < n; i++) sum += p[i];
     f[n + 2] = sum;
     f[n + 3] = TAIL;
-    Serial.write(f, n + 4);
+    Broadcast(f, n + 4);
 }
 
 void Print_Field(const __FlashStringHelper *name, float v, byte decimals)
@@ -889,6 +1084,11 @@ void Print_Params()
     Serial.print(drive_speed, 0);
     Serial.print(F(" telemetry_hz:"));
     Serial.println(telemetryHz);
+    if (wifiInfo.length())
+    {
+        Serial.print(F("# wireless: "));
+        Serial.println(wifiInfo);
+    }
 }
 
 /*********************************************************
