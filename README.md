@@ -69,6 +69,10 @@ binary. Without `--text`, `serial_monitor.py` decodes the binary frames.
 
 ## Tune with live graphs from a PC
 
+![tuner_gui.py: parameter editors, robot controls and auto-tune on the left, live charts of tilt, gyro, loop terms, PWM and wheel speed on the right](tuner_gui.svg)
+
+*`tuner_gui.py` with simulated telemetry: the robot balancing in place, nudged 6 s ago.*
+
 `python3 tuner_gui.py [/dev/ttyUSB0]` (Tkinter + matplotlib + pyserial) is the PC version of
 the app's Tune PID screen: scrolling charts of tilt/raw angle, gyro, the angle/speed/turn loop
 terms, PWM (±250 saturation marked) and wheel speed, each loop term on its own trace as in

@@ -71,6 +71,10 @@ nhị phân. Không có `--text`, `serial_monitor.py` giải mã các khung nh�
 
 ## Chỉnh PID với biểu đồ trực tiếp trên máy tính
 
+![tuner_gui.py: bên trái là ô chỉnh tham số, điều khiển robot và auto-tune; bên phải là biểu đồ trực tiếp của góc nghiêng, gyro, các thành phần vòng điều khiển, PWM và tốc độ bánh](tuner_gui.svg)
+
+*`tuner_gui.py` với telemetry giả lập: robot đang tự cân bằng tại chỗ, bị đẩy cách đây 6 s.*
+
 `python3 tuner_gui.py [/dev/ttyUSB0]` (Tkinter + matplotlib + pyserial) là phiên bản máy tính
 của màn hình Tune PID trong app: biểu đồ cuộn của góc nghiêng/góc thô, gyro, các thành phần
 vòng góc/tốc độ/rẽ, PWM (có vạch bão hòa ±250) và tốc độ bánh. Mỗi thành phần vòng điều khiển
