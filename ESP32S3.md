@@ -69,6 +69,10 @@ Nano. With app 1.2 or later Android offers to open the app when the board is plu
 
 ## Wi-Fi: control page and WebSocket
 
+![The control page in a phone browser: status, tilt chart, drive controls with joystick, and the PID parameters](web_control.svg)
+
+*The real page, captured in Firefox while connected to a simulated robot.*
+
 **In the Android app:** join the robot's network, then **Connect** → **Wi-Fi (ESP32-S3)**, address
 **192.168.4.1**.
 

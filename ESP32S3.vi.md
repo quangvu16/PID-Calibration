@@ -69,6 +69,10 @@ bấm **Connect**.
 
 ## Wi-Fi: trang điều khiển và WebSocket
 
+![Trang điều khiển trong trình duyệt điện thoại: trạng thái, biểu đồ góc nghiêng, điều khiển lái với joystick, và các tham số PID (hình bằng tiếng Anh)](web_control.svg)
+
+*Trang thật, chụp trong Firefox khi đang kết nối với một robot giả lập.*
+
 **Trong app Android:** vào mạng của robot, rồi **Connect** → **Wi-Fi (ESP32-S3)**, địa chỉ
 **192.168.4.1**.
 
