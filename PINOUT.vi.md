@@ -96,3 +96,11 @@ dây trên board để biết chúng được cấp từ đâu.
 - **Encoder chỉ đếm cạnh xung, không biết chiều quay.** Dấu của mỗi lần đếm lấy theo chiều PWM.
 - **LED RGB tích cực mức thấp**: LOW làm sáng một màu, HIGH tắt nó.
 - **MPU6050 được đọc định kỳ** bằng `getMotion6` trong vòng 5 ms; không dùng chân ngắt.
+
+## Bản ESP32-S3
+
+Khi dùng ESP32-S3-DevKitC-1 thay cho Nano, các chân khác đi: xem
+[`pinout_esp32s3.svg`](pinout_esp32s3.svg) và [hướng dẫn ESP32-S3](ESP32S3.vi.md#đấu-dây). Bản đó còn
+phát trang điều khiển này qua mạng Wi-Fi riêng tại **http://192.168.4.1/** (Nano không có Wi-Fi):
+
+<a href="ESP32S3.vi.md#wi-fi-trang-điều-khiển-và-websocket"><img src="web_control.svg" width="280" alt="Trang điều khiển ESP32-S3 trong trình duyệt điện thoại: trạng thái, biểu đồ góc nghiêng, điều khiển lái với joystick, và các tham số PID (hình bằng tiếng Anh)"></a>

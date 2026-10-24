@@ -97,3 +97,11 @@ wiring for what feeds them.
   direction.
 - **The RGB LED is active low**: LOW lights a colour, HIGH turns it off.
 - **The MPU6050 is polled** with `getMotion6` in the 5 ms loop; no interrupt pin is used.
+
+## ESP32-S3 version
+
+With an ESP32-S3-DevKitC-1 in place of the Nano, the pins are different: see
+[`pinout_esp32s3.svg`](pinout_esp32s3.svg) and the [ESP32-S3 guide](ESP32S3.md#wiring). That version
+also serves this control page over its own Wi-Fi at **http://192.168.4.1/** (the Nano has no Wi-Fi):
+
+<a href="ESP32S3.md#wi-fi-control-page-and-websocket"><img src="web_control.svg" width="280" alt="The ESP32-S3 control page in a phone browser: status, tilt chart, drive controls with joystick, and the PID parameters"></a>
