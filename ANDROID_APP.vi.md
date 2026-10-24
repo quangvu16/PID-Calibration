@@ -1,6 +1,6 @@
 # Hướng dẫn app Balance Tuner (Android)
 
-*[README tiếng Việt](README.vi.md) · [Sơ đồ chân](PINOUT.vi.md) · [Tải APK](releases/BalanceTuner-v1.1.apk)*
+*[English](ANDROID_APP.md) · Tiếng Việt · [README tiếng Việt](README.vi.md) · [Sơ đồ chân](PINOUT.vi.md) · [Tải APK](releases/BalanceTuner-v1.1.apk)*
 
 Balance Tuner điều khiển robot tự cân bằng ZYC0049 (PBOT 3.0) và chỉnh PID trực tiếp từ điện
 thoại, qua cáp USB nối vào Arduino Nano. Không cần Bluetooth, không cần mạng.
