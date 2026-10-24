@@ -9,11 +9,11 @@ Remote/Avoid/Follow modes, and speaks the same protocol on three links:
 | Link | How to connect | Who uses it |
 | --- | --- | --- |
 | **USB** | cable to the board's "USB" port | the Android app, `tuner_gui.py`, `autotune.py`, `serial_monitor.py` |
-| **Wi-Fi** | the robot's network, then `http://192.168.4.1/` | any browser (control page), or your own WebSocket client |
-| **Bluetooth LE** | device `BalanceTuner-XXXX`, Nordic UART Service | BLE serial apps, or your own BLE client |
+| **Wi-Fi** | the robot's network, then `http://192.168.4.1/` | the Android app (1.2+), any browser (control page), or your own WebSocket client |
+| **Bluetooth LE** | device `BalanceTuner-XXXX`, Nordic UART Service | the Android app (1.2+), BLE serial apps, or your own BLE client |
 
-The Android app and the PC tools still connect over USB only; the control page is the ready-made
-wireless client.
+The PC tools connect over USB only. In the Android app, tap **Connect** and pick the link (see
+[the app guide](ANDROID_APP.md#connect)).
 
 ## Wiring
 
@@ -64,10 +64,15 @@ http://192.168.4.1/, BLE BalanceTuner-3F2A`. `XXXX` is the end of the board's MA
 ## USB
 
 Plug the phone (USB OTG) or PC into the **USB** port and use the app or the PC tools as with the
-Nano. The app does not open by itself when the board is plugged in, because the ESP32-S3 is not
-in its list of known USB chips: open it and tap **Connect**.
+Nano. With app 1.2 or later Android offers to open the app when the board is plugged in; with
+1.1, open the app and tap **Connect**.
 
 ## Wi-Fi: control page and WebSocket
+
+**In the Android app:** join the robot's network, then **Connect** → **Wi-Fi (ESP32-S3)**, address
+**192.168.4.1**.
+
+**In a browser:**
 
 1. Join the Wi-Fi network **BalanceTuner-XXXX**, password **balance123**.
 2. Open **http://192.168.4.1/** (or `http://balancetuner.local/` where mDNS works).
@@ -100,7 +105,8 @@ connected at once; replies go to every connected client.
 ## Bluetooth LE (Nordic UART Service)
 
 The ESP32-S3 has Bluetooth LE only (no classic Bluetooth or SPP), so the robot offers the common
-BLE serial profile:
+BLE serial profile. **In the Android app:** **Connect** → **Bluetooth (ESP32-S3)**, then tap
+**BalanceTuner-XXXX**. Other BLE apps:
 
 | | UUID |
 | --- | --- |

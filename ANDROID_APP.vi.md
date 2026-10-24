@@ -1,9 +1,10 @@
 # Hướng dẫn app Balance Tuner (Android)
 
-*[English](ANDROID_APP.md) · Tiếng Việt · [README tiếng Việt](README.vi.md) · [Sơ đồ chân](PINOUT.vi.md) · [Tải APK](releases/BalanceTuner-v1.1.apk)*
+*[English](ANDROID_APP.md) · Tiếng Việt · [README tiếng Việt](README.vi.md) · [Sơ đồ chân](PINOUT.vi.md) · [Tải APK](releases/BalanceTuner-v1.2.apk)*
 
 Balance Tuner điều khiển robot tự cân bằng ZYC0049 (PBOT 3.0) và chỉnh PID trực tiếp từ điện
-thoại, qua cáp USB nối vào Arduino Nano. Không cần Bluetooth, không cần mạng.
+thoại: qua cáp USB nối vào Arduino Nano hoặc ESP32-S3, hoặc không dây (Bluetooth LE hoặc Wi-Fi) với
+[bản ESP32-S3](ESP32S3.vi.md).
 
 Tên nút và tên màn hình trong app là tiếng Anh; hướng dẫn này giữ nguyên các tên đó (in đậm) để
 bạn dễ tìm.
@@ -14,8 +15,9 @@ bạn dễ tìm.
 
 ## Cần chuẩn bị
 
-- **Điện thoại** Android 8.0 trở lên, có hỗ trợ USB OTG (USB host).
-- **Cáp hoặc đầu chuyển OTG** để cắm cáp USB của Nano vào điện thoại.
+- **Điện thoại** Android 8.0 trở lên.
+- **Với USB: cáp hoặc đầu chuyển OTG** để cắm cáp USB của robot vào điện thoại, và điện thoại có
+  hỗ trợ USB OTG (USB host). Bluetooth và Wi-Fi cần bản ESP32-S3 của robot.
 - **Firmware `BalancingRobotTuner`** đã nạp vào Nano (xem README). App không làm việc với
   sketch gốc của kit.
 - **Rút module Bluetooth HC-06** ra khỏi robot: nó dùng chung chân D0/D1 với chip USB của Nano
@@ -32,17 +34,41 @@ Sơ đồ chân của robot, để kiểm tra dây nối (D0/D1 là cổng USB d
 
 ## Cài đặt
 
-1. Tải [`BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk) về điện thoại.
+1. Tải [`BalanceTuner-v1.2.apk`](releases/BalanceTuner-v1.2.apk) về điện thoại.
 2. Mở file. Nếu Android hỏi, cho phép cài app từ nguồn này.
-3. Bản 1.1 cài đè lên bản 1.0 mà không mất dữ liệu (log, file CSV).
+3. Bản 1.2 cài đè lên bản 1.0 và 1.1 mà không mất dữ liệu (log, file CSV).
 
 ## Kết nối
 
-1. Bật robot, rồi cắm cáp USB của Nano vào điện thoại qua đầu OTG.
+Bấm **Connect** rồi chọn cách kết nối với robot: **USB cable**, **Bluetooth (ESP32-S3)** hoặc
+**Wi-Fi (ESP32-S3)**.
+
+**Cáp USB** (Nano hoặc ESP32-S3):
+
+1. Bật robot, rồi cắm cáp USB của robot vào điện thoại qua đầu OTG. Với ESP32-S3, dùng cổng ghi
+   **USB** trên board.
 2. Android hỏi có mở **Balance Tuner** không: chọn mở. App kết nối luôn.
-3. Nếu không thấy câu hỏi: mở app, bấm **Connect**, rồi cho phép truy cập USB.
-4. Khi đã kết nối, nhãn trạng thái chuyển sang màu xanh với dấu ●. App đọc các tham số hiện tại
-   từ robot và nhận telemetry 20 lần mỗi giây. Màn hình được giữ sáng trong lúc kết nối.
+3. Nếu không thấy câu hỏi: mở app, bấm **Connect** → **USB cable**, rồi cho phép truy cập USB.
+
+**Bluetooth** (chỉ ESP32-S3; Bluetooth LE):
+
+1. Bật robot và bật Bluetooth của điện thoại.
+2. Bấm **Connect** → **Bluetooth (ESP32-S3)**. Lần đầu, cho phép **Thiết bị ở gần** (Android 12 trở
+   lên) hoặc **Vị trí** (Android 11 trở xuống, cần quyền này để quét Bluetooth).
+3. Robot hiện tên **BalanceTuner-XXXX** kèm cường độ tín hiệu; bấm vào robot của bạn.
+
+**Wi-Fi** (chỉ ESP32-S3):
+
+1. Kết nối vào mạng Wi-Fi của robot **BalanceTuner-XXXX**, mật khẩu **balance123**. Android có thể
+   báo mạng không có internet: cứ giữ kết nối.
+2. Bấm **Connect** → **Wi-Fi (ESP32-S3)**. Địa chỉ là **192.168.4.1**, trừ khi robot đã vào mạng
+   của bạn (robot in địa chỉ ra cổng serial USB); app nhớ địa chỉ này.
+3. Bấm **Connect**. App nói chuyện với robot qua Wi-Fi kể cả khi đang bật dữ liệu di động.
+
+Khi đã kết nối, nhãn trạng thái chuyển sang màu xanh với dấu ● và tên đường kết nối (ví dụ **USB
+CH340**, **BLE BalanceTuner-3F2A** hoặc **Wi-Fi 192.168.4.1**). App đọc các tham số hiện tại từ robot
+và nhận telemetry 20 lần mỗi giây. Màn hình được giữ sáng trong lúc kết nối. Nếu mất kết nối (rút
+cáp, ra ngoài tầm Bluetooth hoặc Wi-Fi), app báo lý do và robot dừng chạy trong vòng 1 giây.
 
 Thanh trên cùng luôn hiển thị: chế độ hiện tại (**mode**), góc nghiêng (**tilt**), khoảng cách
 siêu âm (**dist**), tần số nhận dữ liệu (**Hz**), và công tắc **Motors** để bật/tắt động cơ.
@@ -51,9 +77,12 @@ Các thông báo thường gặp:
 
 | Thông báo | Ý nghĩa và cách xử lý |
 | --- | --- |
-| Robot not found: plug the Nano's USB cable… | Chưa thấy Nano: kiểm tra cáp, đầu OTG, và robot đã bật chưa |
+| Robot not found: plug the Nano's USB cable… | Chưa thấy robot qua USB: kiểm tra cáp, đầu OTG, và robot đã bật chưa |
 | USB permission is needed… | Bạn đã từ chối quyền USB; bấm **Connect** lại và chọn cho phép |
-| USB serial device (danh sách) | Có nhiều thiết bị USB-serial; chọn đúng con Nano |
+| USB serial device (danh sách) | Có nhiều thiết bị USB-serial; chọn đúng robot |
+| No robot found yet… (Bluetooth) | Không có ESP32-S3 nào đang quảng bá gần đó: robot đã bật và nạp firmware ESP32-S3 chưa? Android 11 trở xuống phải bật Vị trí |
+| Could not connect over Wi-Fi: no answer from … | Điện thoại chưa vào mạng của robot, hoặc sai địa chỉ |
+| Bluetooth link lost / Wi-Fi link lost | 3 giây không nhận được gì: ra ngoài tầm, hoặc robot đã tắt |
 | Not connected | Lệnh cần kết nối; bấm **Connect** trước |
 
 ## Tab Drive: lái robot
@@ -200,6 +229,8 @@ của máy tính.
 
 - **Kết nối rồi mà không có dữ liệu (– Hz)**: kiểm tra đã nạp firmware `BalancingRobotTuner` và
   đã rút HC-06.
+- **Wi-Fi hay bị rớt**: một số điện thoại tự rời mạng không có internet sau một lúc; tắt tùy chọn
+  "chuyển sang dữ liệu di động" (hoặc tương tự) trong cài đặt Wi-Fi của điện thoại.
 - **Robot ngã ngay khi bật Motors**: bấm **Kit defaults**, rồi đặt lại góc cân bằng như bước 1
   của HOW TO TUNE.
 - **Auto-tune làm robot ngã ở hầu hết các lượt**: bắt đầu từ bộ đã cân bằng được, giảm Range,

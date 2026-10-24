@@ -2,7 +2,7 @@
 
 *[English](PINOUT.md) · Tiếng Việt · [Bản tương tác](https://claude.ai/artifact/8strAkTf6Lz7dgaNkb2ueQ) (riêng tư cho tới khi được chia sẻ)*
 
-App điện thoại cho robot này: [tải BalanceTuner-v1.1.apk](releases/BalanceTuner-v1.1.apk).
+App điện thoại cho robot này: [tải BalanceTuner-v1.2.apk](releases/BalanceTuner-v1.2.apk).
 
 ![Sơ đồ chân ZYC0049: các chân của Arduino Nano và bộ phận nối vào từng chân (hình bằng tiếng Anh)](pinout.svg)
 

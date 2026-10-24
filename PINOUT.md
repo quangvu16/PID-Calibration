@@ -2,7 +2,7 @@
 
 *English · [Tiếng Việt](PINOUT.vi.md) · [Interactive version](https://claude.ai/artifact/8strAkTf6Lz7dgaNkb2ueQ) (private until shared)*
 
-Phone app for this robot: [download BalanceTuner-v1.1.apk](releases/BalanceTuner-v1.1.apk).
+Phone app for this robot: [download BalanceTuner-v1.2.apk](releases/BalanceTuner-v1.2.apk).
 
 ![ZYC0049 pinout: Arduino Nano pins and what each one connects to](pinout.svg)
 

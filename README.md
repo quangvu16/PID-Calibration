@@ -12,7 +12,7 @@ it, it shares D0/D1 with the Nano's USB chip and would talk over it.
   kit's btcontroller app could drive it at 9600 baud (the firmware now runs at 115200).
 - `android_app/` – the Balance Tuner app (Kotlin, no libraries; its own small USB-serial
   driver for CH340, CP210x, FT232R and CDC-ACM in `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
-  ready-built download: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
+  ready-built download: [`releases/BalanceTuner-v1.2.apk`](releases/BalanceTuner-v1.2.apk).
 - `BalancingRobotTunerESP32S3/` – the same firmware for an ESP32-S3-DevKitC-1 N16R8, plus Wi-Fi/WebSocket and Bluetooth LE control ([`ESP32S3.md`](ESP32S3.md)).
 - `serial_monitor.py` – decodes the same stream on a PC (`/dev/ttyUSB0`).
 - [`ANDROID_APP.md`](ANDROID_APP.md) – a step-by-step guide to the Android app: connecting, driving, tuning by hand and auto-tune ([Vietnamese](ANDROID_APP.vi.md)).

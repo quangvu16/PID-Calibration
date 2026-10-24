@@ -9,11 +9,11 @@ và nói cùng một giao thức trên ba đường kết nối:
 | Đường | Cách kết nối | Ai dùng |
 | --- | --- | --- |
 | **USB** | cáp vào cổng "USB" của board | app Android, `tuner_gui.py`, `autotune.py`, `serial_monitor.py` |
-| **Wi-Fi** | mạng của robot, rồi mở `http://192.168.4.1/` | trình duyệt bất kỳ (trang điều khiển), hoặc client WebSocket của bạn |
-| **Bluetooth LE** | thiết bị `BalanceTuner-XXXX`, Nordic UART Service | app serial BLE, hoặc client BLE của bạn |
+| **Wi-Fi** | mạng của robot, rồi mở `http://192.168.4.1/` | app Android (1.2+), trình duyệt bất kỳ (trang điều khiển), hoặc client WebSocket của bạn |
+| **Bluetooth LE** | thiết bị `BalanceTuner-XXXX`, Nordic UART Service | app Android (1.2+), app serial BLE, hoặc client BLE của bạn |
 
-App Android và các công cụ trên máy tính hiện vẫn chỉ kết nối qua USB; trang điều khiển là client
-không dây có sẵn.
+Các công cụ trên máy tính chỉ kết nối qua USB. Trong app Android, bấm **Connect** rồi chọn đường kết
+nối (xem [hướng dẫn app](ANDROID_APP.vi.md#kết-nối)).
 
 ## Đấu dây
 
@@ -64,10 +64,15 @@ BalanceTuner-3F2A`. `XXXX` là phần cuối địa chỉ MAC của board.
 ## USB
 
 Cắm điện thoại (USB OTG) hoặc máy tính vào cổng **USB** và dùng app hoặc các công cụ trên máy tính
-như với Nano. App không tự mở khi cắm board, vì ESP32-S3 không nằm trong danh sách chip USB mà app
-biết: hãy mở app và bấm **Connect**.
+như với Nano. Với app 1.2 trở lên, Android đề nghị mở app khi cắm board; với bản 1.1, hãy mở app và
+bấm **Connect**.
 
 ## Wi-Fi: trang điều khiển và WebSocket
+
+**Trong app Android:** vào mạng của robot, rồi **Connect** → **Wi-Fi (ESP32-S3)**, địa chỉ
+**192.168.4.1**.
+
+**Trong trình duyệt:**
 
 1. Kết nối vào mạng Wi-Fi **BalanceTuner-XXXX**, mật khẩu **balance123**.
 2. Mở **http://192.168.4.1/** (hoặc `http://balancetuner.local/` nếu mDNS chạy được).
@@ -98,7 +103,8 @@ nhất mỗi giây một lần. Tối đa 2 client cùng lúc; phản hồi đư
 ## Bluetooth LE (Nordic UART Service)
 
 ESP32-S3 chỉ có Bluetooth LE (không có Bluetooth classic hay SPP), nên robot dùng profile serial
-BLE thông dụng:
+BLE thông dụng. **Trong app Android:** **Connect** → **Bluetooth (ESP32-S3)**, rồi bấm
+**BalanceTuner-XXXX**. Các app BLE khác:
 
 | | UUID |
 | --- | --- |

@@ -12,7 +12,7 @@ vì nó dùng chung chân D0/D1 với chip USB của Nano và sẽ tranh đườ
   btcontroller của kit có thể lái robot ở 9600 baud (firmware hiện chạy ở 115200).
 - `android_app/` – app Balance Tuner (Kotlin, không dùng thư viện ngoài; có driver USB-serial
   riêng cho CH340, CP210x, FT232R và CDC-ACM trong `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
-  bản build sẵn để tải: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
+  bản build sẵn để tải: [`releases/BalanceTuner-v1.2.apk`](releases/BalanceTuner-v1.2.apk).
 - `BalancingRobotTunerESP32S3/` – cùng firmware đó cho ESP32-S3-DevKitC-1 N16R8, thêm điều khiển qua Wi-Fi/WebSocket và Bluetooth LE ([`ESP32S3.vi.md`](ESP32S3.vi.md)).
 - `serial_monitor.py` – giải mã cùng luồng dữ liệu đó trên máy tính (`/dev/ttyUSB0`).
 - [`ANDROID_APP.vi.md`](ANDROID_APP.vi.md) – hướng dẫn dùng app Android: kết nối, lái, chỉnh PID bằng tay và tự chỉnh.

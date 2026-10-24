@@ -1,9 +1,10 @@
 # Balance Tuner app guide (Android)
 
-*English · [Tiếng Việt](ANDROID_APP.vi.md) · [README](README.md) · [Pinout](PINOUT.md) · [Download the APK](releases/BalanceTuner-v1.1.apk)*
+*English · [Tiếng Việt](ANDROID_APP.vi.md) · [README](README.md) · [Pinout](PINOUT.md) · [Download the APK](releases/BalanceTuner-v1.2.apk)*
 
 Balance Tuner drives the ZYC0049 (PBOT 3.0) balancing robot and tunes its PID live from your
-phone, over a USB cable to the Arduino Nano. No Bluetooth and no network needed.
+phone: over a USB cable to the Arduino Nano or ESP32-S3, or wirelessly (Bluetooth LE or Wi-Fi) to
+the [ESP32-S3 version](ESP32S3.md).
 
 Button and screen names are written in **bold**, exactly as they appear in the app.
 
@@ -13,8 +14,9 @@ Button and screen names are written in **bold**, exactly as they appear in the a
 
 ## What you need
 
-- **A phone** with Android 8.0 or later and USB OTG (USB host) support.
-- **An OTG cable or adapter** to plug the Nano's USB cable into the phone.
+- **A phone** with Android 8.0 or later.
+- **For USB: an OTG cable or adapter** to plug the robot's USB cable into the phone, and a phone
+  with USB OTG (USB host) support. Bluetooth and Wi-Fi need the ESP32-S3 version of the robot.
 - **The `BalancingRobotTuner` firmware** flashed on the Nano (see the README). The app does not
   work with the kit's original sketch.
 - **The HC-06 Bluetooth module unplugged** from the robot: it shares pins D0/D1 with the Nano's
@@ -31,17 +33,42 @@ The robot's pinout, for checking the wiring (D0/D1 are the USB port shared with 
 
 ## Install
 
-1. Download [`BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk) to the phone.
+1. Download [`BalanceTuner-v1.2.apk`](releases/BalanceTuner-v1.2.apk) to the phone.
 2. Open the file. If Android asks, allow installing apps from that source.
-3. Version 1.1 installs over 1.0 without losing data (logs, CSV files).
+3. Version 1.2 installs over 1.0 and 1.1 without losing data (logs, CSV files).
 
 ## Connect
 
-1. Switch the robot on, then plug the Nano's USB cable into the phone through the OTG adapter.
+Tap **Connect** and pick how to reach the robot: **USB cable**, **Bluetooth (ESP32-S3)** or
+**Wi-Fi (ESP32-S3)**.
+
+**USB cable** (Nano or ESP32-S3):
+
+1. Switch the robot on, then plug its USB cable into the phone through the OTG adapter. On the
+   ESP32-S3 use the board's port labelled **USB**.
 2. Android asks whether to open **Balance Tuner**: open it. The app connects straight away.
-3. If there is no question: open the app, tap **Connect**, then allow USB access.
-4. Once connected, the status label turns green with a ●. The app reads the robot's current
-   parameters and receives telemetry 20 times a second. The screen stays on while connected.
+3. If there is no question: open the app, tap **Connect** → **USB cable**, then allow USB access.
+
+**Bluetooth** (ESP32-S3 only; Bluetooth LE):
+
+1. Switch the robot on and turn on the phone's Bluetooth.
+2. Tap **Connect** → **Bluetooth (ESP32-S3)**. The first time, allow **Nearby devices** (Android
+   12 and later) or **Location** (Android 11 and older, which need it to scan for Bluetooth).
+3. Robots appear as **BalanceTuner-XXXX** with their signal strength; tap yours.
+
+**Wi-Fi** (ESP32-S3 only):
+
+1. Join the robot's Wi-Fi network **BalanceTuner-XXXX**, password **balance123**. Android may warn
+   that the network has no internet: stay connected.
+2. Tap **Connect** → **Wi-Fi (ESP32-S3)**. The address is **192.168.4.1** unless the robot joined
+   your own network (it prints its address on its USB serial port); the app remembers it.
+3. Tap **Connect**. The app talks to the robot over Wi-Fi even while mobile data is on.
+
+Once connected, the status label turns green with a ● and the link (for example **USB CH340**,
+**BLE BalanceTuner-3F2A** or **Wi-Fi 192.168.4.1**). The app reads the robot's current parameters
+and receives telemetry 20 times a second. The screen stays on while connected. If the link drops
+(cable out, out of Bluetooth or Wi-Fi range), the app shows why and the robot stops driving within
+1 second.
 
 The top bar always shows the current mode (**mode**), the tilt (**tilt**), the ultrasonic distance
 (**dist**), the telemetry rate (**Hz**), and the **Motors** switch to turn the motors on or off.
@@ -50,9 +77,12 @@ Common messages:
 
 | Message | What it means and what to do |
 | --- | --- |
-| Robot not found: plug the Nano's USB cable… | No Nano found: check the cable, the OTG adapter, and that the robot is on |
+| Robot not found: plug the Nano's USB cable… | No USB robot found: check the cable, the OTG adapter, and that the robot is on |
 | USB permission is needed… | USB access was refused; tap **Connect** again and allow it |
-| USB serial device (a list) | Several USB-serial devices are plugged in; pick the Nano |
+| USB serial device (a list) | Several USB-serial devices are plugged in; pick the robot |
+| No robot found yet… (Bluetooth) | No ESP32-S3 advertising nearby: is it on and flashed with the ESP32-S3 firmware? On Android 11 and older, Location must be on |
+| Could not connect over Wi-Fi: no answer from … | The phone is not on the robot's network, or the address is wrong |
+| Bluetooth link lost / Wi-Fi link lost | Nothing arrived for 3 seconds: out of range, or the robot was switched off |
 | Not connected | This needs a connection; tap **Connect** first |
 
 ## Drive tab
@@ -204,6 +234,8 @@ separate from the PC's.
 
 - **Connected but no data (– Hz)**: check that the `BalancingRobotTuner` firmware is flashed and
   the HC-06 is unplugged.
+- **Wi-Fi keeps dropping**: some phones leave a network without internet after a while; turn off
+  "switch to mobile data" (or similar) in the phone's Wi-Fi settings.
 - **The robot falls as soon as Motors is on**: tap **Kit defaults**, then set the balance angle
   again as in step 1 of HOW TO TUNE.
 - **Auto-tune makes the robot fall in almost every trial**: start from gains that already
