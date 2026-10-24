@@ -29,10 +29,13 @@ arduino-cli upload  --fqbn arduino:avr:nano:cpu=atmega328 -p /dev/ttyUSB0 .
 
 ```bash
 cd "~/Arduino/ZYC0049 Self Balance/BalanceTuner/android_app"
-JAVA_HOME=~/Android/jdk ANDROID_HOME=~/Android/Sdk \
-  JAVA_TOOL_OPTIONS=-Djava.net.preferIPv6Addresses=true ./gradlew --no-daemon assembleRelease
+JAVA_HOME=~/Android/jdk ANDROID_HOME=~/Android/Sdk ~/Android/gradle-8.7/bin/gradle --no-daemon assembleRelease
 cp app/build/outputs/apk/release/app-release.apk ~/BalanceTuner.apk
 ```
+
+Lệnh này dùng Gradle 8.7 đã cài sẵn trong `~/Android/gradle-8.7`. `./gradlew` cũng dùng được,
+nhưng trước tiên nó tải Gradle từ mirror Tencent, và trên máy này việc tải đó bị đứt giữa chừng.
+Lần build đầu tiên cũng tải các thư viện build của Android, nên cần có mạng.
 
 ## Sử dụng
 

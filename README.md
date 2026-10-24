@@ -28,10 +28,13 @@ arduino-cli upload  --fqbn arduino:avr:nano:cpu=atmega328 -p /dev/ttyUSB0 .
 
 ```bash
 cd "~/Arduino/ZYC0049 Self Balance/BalanceTuner/android_app"
-JAVA_HOME=~/Android/jdk ANDROID_HOME=~/Android/Sdk \
-  JAVA_TOOL_OPTIONS=-Djava.net.preferIPv6Addresses=true ./gradlew --no-daemon assembleRelease
+JAVA_HOME=~/Android/jdk ANDROID_HOME=~/Android/Sdk ~/Android/gradle-8.7/bin/gradle --no-daemon assembleRelease
 cp app/build/outputs/apk/release/app-release.apk ~/BalanceTuner.apk
 ```
+
+This uses the Gradle 8.7 already installed in `~/Android/gradle-8.7`. `./gradlew` works too, but
+it first downloads Gradle from the Tencent mirror, and on this machine that download breaks off
+partway. The first build also downloads the Android build libraries, so it needs a network.
 
 ## Use
 
