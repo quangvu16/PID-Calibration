@@ -46,6 +46,10 @@ WebSocket, và qua **Bluetooth LE** (Nordic UART Service).
 
 Đấu dây (ESP32-S3 chỉ chịu 3,3 V), build, Wi-Fi và Bluetooth: [`ESP32S3.vi.md`](ESP32S3.vi.md).
 
+Trang điều khiển tại `http://192.168.4.1/`, mở bằng trình duyệt điện thoại bất kỳ trong mạng Wi-Fi của robot:
+
+<a href="ESP32S3.vi.md#wi-fi-trang-điều-khiển-và-websocket"><img src="web_control.svg" width="320" alt="Trang điều khiển trong trình duyệt điện thoại: trạng thái, biểu đồ góc nghiêng, điều khiển lái với joystick, và các tham số PID (hình bằng tiếng Anh)"></a>
+
 ## Build app
 
 ```bash

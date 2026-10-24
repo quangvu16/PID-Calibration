@@ -45,6 +45,10 @@ can also be driven and tuned over **Wi-Fi**, from a control page the robot serve
 
 Wiring (the ESP32-S3 is 3.3 V only), building, Wi-Fi and Bluetooth: [`ESP32S3.md`](ESP32S3.md).
 
+The control page at `http://192.168.4.1/`, from any phone browser on the robot's Wi-Fi:
+
+<a href="ESP32S3.md#wi-fi-control-page-and-websocket"><img src="web_control.svg" width="320" alt="The control page in a phone browser: status, tilt chart, drive controls with joystick, and the PID parameters"></a>
+
 ## Build the app
 
 ```bash
