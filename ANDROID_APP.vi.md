@@ -22,6 +22,10 @@ bạn dễ tìm.
 App nhận các chip USB-serial thường gặp trên Nano: CH340/CH341, CP2102, FT232R/FT-X và Arduino
 chính hãng (CDC-ACM).
 
+Sơ đồ chân của robot, để kiểm tra dây nối (D0/D1 là cổng USB dùng chung với HC-06):
+
+[![Sơ đồ chân ZYC0049: các chân của Arduino Nano và bộ phận nối vào từng chân (hình bằng tiếng Anh)](pinout.svg)](PINOUT.vi.md)
+
 ## Cài đặt
 
 1. Tải [`BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk) về điện thoại.
