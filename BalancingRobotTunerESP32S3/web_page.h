@@ -78,6 +78,7 @@ function onTelem(d){frames++;const g=k=>d.getInt16(k*2,true);const angle=g(1)/10
  const fl=g(11),m=(fl>>2)&3;$("mode").textContent=["–","remote","avoid","follow"][m];
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",+b.dataset.mode===m));
  if(fl&2)$("mode").textContent="FALLEN";if(document.activeElement!==$("motors"))$("motors").checked=!!(fl&1);
+ if(robot[6]===undefined)return;   // tilt needs angle0: chart from the parameter reply on
  tilts.push(tilt);if(tilts.length>200)tilts.shift();drawChart()}
 function onAck(c,ok){$("msg").textContent=c===CMD.save?(ok?"Saved to the robot's flash.":"Save failed."):c===CMD.load?(ok?"Reloaded saved values.":"Nothing saved on the robot yet."):c===CMD.defaults?"Kit defaults applied (not saved).":""}
 // ---- connection
