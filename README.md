@@ -59,7 +59,7 @@ partway. The first build also downloads the Android build libraries, so it needs
 
 ## Use
 
-![Balance Tuner app: the Drive tab with mode buttons and joystick, the Tune PID tab with live charts of tilt, gyro, loop terms, PWM and wheel speed, and the Tune PID tab scrolled to the auto-tune settings and the parameter editors](android_app.svg)
+![Balance Tuner app: the Drive tab with mode buttons and joystick, the Tune PID tab with live charts of tilt, gyro, loop terms, PWM and wheel speed, the Tune PID tab scrolled to the auto-tune settings and the parameter editors, and the Connect dialog offering USB cable, Bluetooth and Wi-Fi](android_app.svg)
 
 *Drawn from the app's layout, colours and chart code with simulated telemetry, not a phone screenshot.* Step by step: [`ANDROID_APP.md`](ANDROID_APP.md).
 

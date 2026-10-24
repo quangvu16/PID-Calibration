@@ -9,7 +9,7 @@ thoại: qua cáp USB nối vào Arduino Nano hoặc ESP32-S3, hoặc không dâ
 Tên nút và tên màn hình trong app là tiếng Anh; hướng dẫn này giữ nguyên các tên đó (in đậm) để
 bạn dễ tìm.
 
-![App Balance Tuner: tab Drive với các nút chế độ và joystick, tab Tune PID với biểu đồ trực tiếp của góc nghiêng, gyro, các thành phần vòng điều khiển, PWM và tốc độ bánh, và tab Tune PID cuộn xuống phần cài đặt auto-tune và ô chỉnh tham số](android_app.svg)
+![App Balance Tuner: tab Drive với các nút chế độ và joystick, tab Tune PID với biểu đồ trực tiếp của góc nghiêng, gyro, các thành phần vòng điều khiển, PWM và tốc độ bánh, tab Tune PID cuộn xuống phần cài đặt auto-tune và ô chỉnh tham số, và hộp thoại Connect với các lựa chọn cáp USB, Bluetooth và Wi-Fi](android_app.svg)
 
 *Vẽ từ layout, màu và mã vẽ biểu đồ của app với telemetry giả lập, không phải ảnh chụp màn hình điện thoại.*
 

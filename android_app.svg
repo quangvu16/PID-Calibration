@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1436" height="1022" viewBox="0 0 1436 1022">
-<title>Balance Tuner Android app: the Drive and Tune PID screens</title>
-<rect width="1436" height="1022" fill="#f4f5f3"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1908" height="1022" viewBox="0 0 1908 1022">
+<title>Balance Tuner Android app: the Drive and Tune PID screens and the Connect dialog</title>
+<rect width="1908" height="1022" fill="#f4f5f3"/>
 <text x="40" y="34" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="20" font-weight="700" fill="#17201C">Balance Tuner (Android)</text>
-<text x="40" y="54" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" fill="#5A6861">Drive tab, Tune PID tab, and Tune PID scrolled down to auto-tune and the parameters · connected over USB · simulated telemetry</text>
+<text x="40" y="54" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" fill="#5A6861">Drive, Tune PID, Tune PID scrolled to auto-tune and the parameters (connected over USB, simulated telemetry), and the Connect dialog</text>
 <g transform="translate(40 90)">
 <rect x="-12.0" y="-12.0" width="436.0" height="916.0" rx="44" fill="#1b1f1d"/>
 <clipPath id="screendrive"><rect x="0" y="0" width="412" height="892" rx="34"/></clipPath>
@@ -387,6 +387,76 @@
 <rect x="328.0" y="1153.0" width="42.0" height="44.0" rx="8" fill="#FFFFFF"/>
 <text x="349.0" y="1181.5" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="400" fill="#17201C" text-anchor="middle">+</text>
 </g>
+<rect x="152.0" y="880.0" width="108.0" height="4.0" rx="2" fill="#17201C" fill-opacity="0.45"/>
+</g></g>
+<g transform="translate(1456 90)">
+<rect x="-12.0" y="-12.0" width="436.0" height="916.0" rx="44" fill="#1b1f1d"/>
+<clipPath id="screenconnect"><rect x="0" y="0" width="412" height="892" rx="34"/></clipPath>
+<g clip-path="url(#screenconnect)">
+<rect x="0.0" y="0.0" width="412.0" height="892.0" rx="0" fill="#EEF1EE"/>
+<rect x="0.0" y="0.0" width="412.0" height="32.0" rx="0" fill="#FFFFFF"/>
+<text x="24.0" y="21.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="700" fill="#17201C" text-anchor="start">10:24</text>
+<circle cx="206.0" cy="15" r="6" fill="#1b1f1d"/>
+<rect x="366.0" y="10.0" width="22.0" height="11.0" rx="2.5" fill="none" stroke="#17201C"/>
+<rect x="368.0" y="12.0" width="14.0" height="7.0" rx="1.2" fill="#17201C"/>
+<rect x="0.0" y="32.0" width="412.0" height="96.0" rx="0" fill="#FFFFFF"/>
+<text x="16.0" y="66.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="18" font-weight="700" fill="#17201C" text-anchor="start">Balance Tuner</text>
+<text x="392.0" y="65.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#1F5FD1" text-anchor="end">Connect</text>
+<rect x="16.0" y="88.0" width="65.6" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="26.0" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">offline</text>
+<rect x="87.6" y="88.0" width="59.1" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="97.6" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">mode –</text>
+<rect x="152.6" y="88.0" width="65.6" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="162.6" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">angle –</text>
+<rect x="224.2" y="88.0" width="59.1" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="234.2" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">dist –</text>
+<rect x="289.3" y="88.0" width="46.0" height="21.0" rx="10.5" fill="#E3E8E4"/>
+<text x="299.3" y="103.0" font-family="'Roboto Mono', 'DejaVu Sans Mono', Menlo, monospace" font-size="12" font-weight="400" fill="#5A6861" text-anchor="start">– Hz</text>
+<text x="347.3" y="103.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="start">Motors</text>
+<rect x="401.9" y="92.0" width="34.0" height="14.0" rx="7" fill="#1F5FD1" fill-opacity="0.5"/>
+<circle cx="427.94" cy="99" r="10" fill="#1F5FD1"/>
+<rect x="16.0" y="139.5" width="63.3" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="16.0" y="138.0" width="63.3" height="40.0" rx="8" fill="#DFE8FA"/>
+<text x="47.7" y="163.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#1F5FD1" text-anchor="middle">Drive</text>
+<rect x="83.3" y="139.5" width="86.6" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="83.3" y="138.0" width="86.6" height="40.0" rx="8" fill="#FFFFFF"/>
+<text x="126.6" y="163.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Tune PID</text>
+<text x="16.0" y="210.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="12" font-weight="700" fill="#5A6861" text-anchor="start" letter-spacing="0.96">MODE</text>
+<rect x="16.0" y="220.5" width="80.1" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="16.0" y="219.0" width="80.1" height="40.0" rx="8" fill="#FFFFFF"/>
+<text x="56.0" y="244.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Remote</text>
+<rect x="100.1" y="220.5" width="65.2" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="100.1" y="219.0" width="65.2" height="40.0" rx="8" fill="#FFFFFF"/>
+<text x="132.7" y="244.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Avoid</text>
+<rect x="169.3" y="220.5" width="69.8" height="40.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="169.3" y="219.0" width="69.8" height="40.0" rx="8" fill="#FFFFFF"/>
+<text x="204.2" y="244.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Follow</text>
+<circle cx="206.0" cy="393" r="109" fill="#E3E8E4" stroke="#CFD7D1"/>
+<path d="M206.0 310.15999999999997 V475.84000000000003 M123.16 393 H288.84000000000003" stroke="#CFD7D1"/>
+<text x="206.0" y="301.6" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="11" font-weight="700" fill="#5A6861" text-anchor="middle" letter-spacing="0.66">FWD</text>
+<text x="206.0" y="492.1" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="11" font-weight="700" fill="#5A6861" text-anchor="middle" letter-spacing="0.66">BACK</text>
+<text x="121.2" y="396.9" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="11" font-weight="700" fill="#5A6861" text-anchor="middle" letter-spacing="0.66">LEFT</text>
+<text x="286.4" y="396.9" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="11" font-weight="700" fill="#5A6861" text-anchor="middle" letter-spacing="0.66">RIGHT</text>
+<circle cx="206.0" cy="395.0" r="32.7" fill="#000" fill-opacity="0.18"/>
+<circle cx="206.0" cy="393.0" r="32.7" fill="#1F5FD1"/>
+<rect x="98.0" y="524.5" width="71.7" height="52.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="98.0" y="523.0" width="71.7" height="52.0" rx="8" fill="#FFFFFF"/>
+<text x="133.9" y="554.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">⟲ Spin</text>
+<rect x="173.7" y="524.5" width="60.6" height="52.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="173.7" y="523.0" width="60.6" height="52.0" rx="8" fill="#FFFFFF"/>
+<text x="204.0" y="554.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Horn</text>
+<rect x="238.3" y="524.5" width="71.7" height="52.0" rx="8" fill="#000000" fill-opacity="0.08"/>
+<rect x="238.3" y="523.0" width="71.7" height="52.0" rx="8" fill="#FFFFFF"/>
+<text x="274.1" y="554.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="14" font-weight="400" fill="#17201C" text-anchor="middle">Spin ⟳</text>
+<text x="16.0" y="609.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="400" fill="#5A6861" text-anchor="start">Hold the spin and horn buttons. Remote mode follows the</text>
+<text x="16.0" y="627.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="13" font-weight="400" fill="#5A6861" text-anchor="start">stick; Avoid and Follow use the ultrasonic sensor.</text>
+<rect x="0.0" y="0.0" width="412.0" height="892.0" rx="0" fill="#000000" fill-opacity="0.6"/>
+<rect x="40.0" y="341.0" width="332.0" height="216.0" rx="3" fill="#000000" fill-opacity="0.25"/>
+<rect x="40.0" y="338.0" width="332.0" height="216.0" rx="3" fill="#FFFFFF"/>
+<text x="64.0" y="382.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="20" font-weight="700" fill="#17201C" text-anchor="start">Connect to the robot</text>
+<text x="64.0" y="432.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="16" font-weight="400" fill="#17201C" text-anchor="start">USB cable (nothing plugged in)</text>
+<text x="64.0" y="480.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="16" font-weight="400" fill="#17201C" text-anchor="start">Bluetooth (ESP32-S3)</text>
+<text x="64.0" y="528.0" font-family="Roboto, 'DejaVu Sans', Arial, sans-serif" font-size="16" font-weight="400" fill="#17201C" text-anchor="start">Wi-Fi (ESP32-S3)</text>
 <rect x="152.0" y="880.0" width="108.0" height="4.0" rx="2" fill="#17201C" fill-opacity="0.45"/>
 </g></g>
 </svg>

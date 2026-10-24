@@ -8,7 +8,7 @@ the [ESP32-S3 version](ESP32S3.md).
 
 Button and screen names are written in **bold**, exactly as they appear in the app.
 
-![Balance Tuner app: the Drive tab with mode buttons and joystick, the Tune PID tab with live charts of tilt, gyro, loop terms, PWM and wheel speed, and the Tune PID tab scrolled to the auto-tune settings and the parameter editors](android_app.svg)
+![Balance Tuner app: the Drive tab with mode buttons and joystick, the Tune PID tab with live charts of tilt, gyro, loop terms, PWM and wheel speed, the Tune PID tab scrolled to the auto-tune settings and the parameter editors, and the Connect dialog offering USB cable, Bluetooth and Wi-Fi](android_app.svg)
 
 *Drawn from the app's layout, colours and chart code with simulated telemetry, not a phone screenshot.*
 
