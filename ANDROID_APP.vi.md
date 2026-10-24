@@ -65,6 +65,11 @@ Bấm **Connect** rồi chọn cách kết nối với robot: **USB cable**, **B
    của bạn (robot in địa chỉ ra cổng serial USB); app nhớ địa chỉ này.
 3. Bấm **Connect**. App nói chuyện với robot qua Wi-Fi kể cả khi đang bật dữ liệu di động.
 
+Không có app, trình duyệt điện thoại bất kỳ trong mạng Wi-Fi của robot cũng lái và chỉnh được: mở
+**http://192.168.4.1/** để vào trang điều khiển của robot (xem [hướng dẫn ESP32-S3](ESP32S3.vi.md#wi-fi-trang-điều-khiển-và-websocket)).
+
+<a href="ESP32S3.vi.md#wi-fi-trang-điều-khiển-và-websocket"><img src="web_control.svg" width="280" alt="Trang điều khiển ESP32-S3 trong trình duyệt điện thoại: trạng thái, biểu đồ góc nghiêng, điều khiển lái với joystick, và các tham số PID (hình bằng tiếng Anh)"></a>
+
 Khi đã kết nối, nhãn trạng thái chuyển sang màu xanh với dấu ● và tên đường kết nối (ví dụ **USB
 CH340**, **BLE BalanceTuner-3F2A** hoặc **Wi-Fi 192.168.4.1**). App đọc các tham số hiện tại từ robot
 và nhận telemetry 20 lần mỗi giây. Màn hình được giữ sáng trong lúc kết nối. Nếu mất kết nối (rút

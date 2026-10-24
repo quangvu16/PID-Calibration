@@ -64,6 +64,11 @@ Tap **Connect** and pick how to reach the robot: **USB cable**, **Bluetooth (ESP
    your own network (it prints its address on its USB serial port); the app remembers it.
 3. Tap **Connect**. The app talks to the robot over Wi-Fi even while mobile data is on.
 
+Without the app, any phone browser on the robot's Wi-Fi can drive and tune it too: open
+**http://192.168.4.1/** for the robot's own control page (see the [ESP32-S3 guide](ESP32S3.md#wi-fi-control-page-and-websocket)).
+
+<a href="ESP32S3.md#wi-fi-control-page-and-websocket"><img src="web_control.svg" width="280" alt="The ESP32-S3 control page in a phone browser: status, tilt chart, drive controls with joystick, and the PID parameters"></a>
+
 Once connected, the status label turns green with a ● and the link (for example **USB CH340**,
 **BLE BalanceTuner-3F2A** or **Wi-Fi 192.168.4.1**). The app reads the robot's current parameters
 and receives telemetry 20 times a second. The screen stays on while connected. If the link drops
