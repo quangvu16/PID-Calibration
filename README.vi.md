@@ -13,6 +13,7 @@ vì nó dùng chung chân D0/D1 với chip USB của Nano và sẽ tranh đườ
 - `android_app/` – app Balance Tuner (Kotlin, không dùng thư viện ngoài; có driver USB-serial
   riêng cho CH340, CP210x, FT232R và CDC-ACM trong `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`.
 - `serial_monitor.py` – giải mã cùng luồng dữ liệu đó trên máy tính (`/dev/ttyUSB0`).
+- [`PINOUT.md`](PINOUT.md) – sơ đồ chân: chân nào của Nano nối với bộ phận nào (driver động cơ, encoder, IMU, siêu âm, LED, còi; bằng tiếng Anh).
 
 ## Nạp firmware
 

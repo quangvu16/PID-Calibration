@@ -13,6 +13,7 @@ it, it shares D0/D1 with the Nano's USB chip and would talk over it.
 - `android_app/` – the Balance Tuner app (Kotlin, no libraries; its own small USB-serial
   driver for CH340, CP210x, FT232R and CDC-ACM in `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`.
 - `serial_monitor.py` – decodes the same stream on a PC (`/dev/ttyUSB0`).
+- [`PINOUT.md`](PINOUT.md) – which Nano pin goes to which part (motor driver, encoders, IMU, sonar, LED, buzzer).
 
 ## Flash the firmware
 
