@@ -60,7 +60,7 @@ class ModelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private fun drawCosts(canvas: Canvas, r: AutoTuner.Report, box: RectF) {
         val costs = r.costs.indices.filter { r.own[it] }.map { r.costs[it] }
         val fell = r.fellMask.indices.filter { r.own[it] }.map { r.fellMask[it] }
-        val dash = if (r.method == AutoTuner.Method.ML) "model's best" else "best, mean of 2"
+        val dash = if (r.method == AutoTuner.Method.TWIDDLE) "best, mean of 2" else "model's best"
         canvas.drawText("Cost per trial (log; x = fell; dashed = $dash)", box.left, box.top - 6 * density, text)
         if (costs.isEmpty()) return
         val lo = log10(max(0.5, costs.min()))
@@ -96,6 +96,7 @@ class ModelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         var title = if (r.names.size == 1) "Predicted cost vs ${r.names[0]} (band = 2 std)"
         else "Predicted cost, dark = better" + if (r.names.size > 2) " (others at best)" else ""
         if (r.method == AutoTuner.Method.TWIDDLE) title += " - fit for display only"
+        else if (r.method != AutoTuner.Method.ML) title += " - fit picks the result only"
         canvas.drawText(title, box.left, box.top - 6 * density, text)
         fun px(u: Double) = box.left + u.toFloat() * box.width()
         fun py(u: Double) = box.bottom - u.toFloat() * box.height()

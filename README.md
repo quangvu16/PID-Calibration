@@ -100,7 +100,7 @@ all of them moved Kp/Kd from the start to near the optimum in 25 trials; on the 
 (Bayesian) still needs the fewest. Not included: Ziegler–Nichols, Cohen–Coon and relay
 (Åström–Hägglund) tuning need the open-loop plant to be stable or a sustained oscillation,
 and a balancing robot falls under both; online RL or fuzzy gain scheduling inside the 200 Hz
-loop would need firmware changes. The app (`AutoTuner.kt`) still has only ML and Twiddle.
+loop would need firmware changes. The app (`AutoTuner.kt`) has all eleven too.
 
 - **Twiddle** is `autotune.py`'s search run from the GUI. It steps one gain at a time
   (start ±25 %), and a win is re-measured before it is kept. Range defaults to ×3 as in
@@ -125,8 +125,8 @@ and the model's predicted-cost map (falls in red, past runs in grey). Stop keeps
 found so far. At the end the GUI asks before saving to EEPROM.
 
 The app has the same feature in a native Kotlin port (`AutoTuner.kt`, `ModelView.kt`, no
-libraries) under **Tune PID → Auto-tune**. It offers the same two methods (ML (Bayesian) or
-Twiddle), the same settings and cost, and a chart of the cost per trial and the predicted-cost map. It switches
+libraries) under **Tune PID → Auto-tune**. It offers the same eleven methods in a list, with
+the same settings and cost, and a chart of the cost per trial and the predicted-cost map. It switches
 telemetry to 25 Hz while it runs, so its costs compare with the PC's, then back to 20 Hz.
 Trials are logged to `ml_tune_log.csv` in Android/data/com.zyc0049.balancetuner/files. That
 log is separate from the PC's, so each one learns only from its own past trials.

@@ -14,7 +14,9 @@ import kotlin.math.ln
 import kotlin.math.ln1p
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.sqrt
+import kotlin.math.tanh
 
 /**
  * Machine-learning auto-tune: the phone port of ml_tune.py (Bayesian optimisation with a
@@ -32,6 +34,11 @@ import kotlin.math.sqrt
  * (start 25 %, x1.3 after a win, x0.6 otherwise, until below 4 %), a win re-measured and kept
  * only if the average still wins. The GP is then fitted only to draw the model view.
  *
+ * The other methods are ports of the rest of ml_tune.py (see [searchOther]): a neural-network
+ * surrogate, policy-gradient RL, CMA-ES, differential evolution, PSO, a genetic algorithm,
+ * Nelder-Mead, SPSA and a random baseline. They search the same unit cube and report the
+ * result as ML does (lowest GP-predicted cost among the tried sets).
+ *
  * The balance angle (angle0) can be tuned too: an offset, so it is searched linearly within
  * current +- 3 deg, and twiddle steps it additively (+-0.75 deg first).
  *
@@ -45,9 +52,21 @@ class AutoTuner(
     private val logFile: File,
     private val listener: Listener,
 ) {
-    enum class Method(val label: String, val defaultRange: Double) {
-        ML("ML (Bayesian)", 2.0),
-        TWIDDLE("Twiddle", 3.0),                // autotune.py's box: current / 3 .. x 3
+    /** [tag] starts the log's stage column, as on the PC; [hint] is shown under the picker. */
+    enum class Method(val label: String, val defaultRange: Double, val tag: String, val hint: String) {
+        ML("ML (Bayesian)", 2.0, "ml", "Gaussian process + expected improvement. Fewest trials; the default."),
+        NEURAL("Neural (deep ensemble)", 2.0, "neural",
+            "5 small neural nets learn the cost; tries the lowest confidence bound."),
+        RL("RL (policy gradient)", 2.0, "rl", "PGPE: a Gaussian policy over the gains, 2 trials per update."),
+        CMAES("CMA-ES", 2.0, "cma-es", "Evolution strategy that learns the step size and gain correlations."),
+        DE("Differential evolution", 2.0, "de", "Population search, DE/rand/1/bin. Needs 30+ trials."),
+        PSO("Particle swarm (PSO)", 2.0, "pso", "Swarm search. Needs 30+ trials."),
+        GENETIC("Genetic algorithm", 2.0, "genetic", "Selection, crossover, mutation, elitism. Needs 30+ trials."),
+        NELDER_MEAD("Nelder-Mead", 2.0, "nelder-mead", "Downhill simplex: local, no model, sensitive to noise."),
+        SPSA("SPSA", 2.0, "spsa", "Noisy gradient from 2 trials per step (extremum-seeking style). Local."),
+        TWIDDLE("Twiddle", 3.0, "twiddle",          // autotune.py's box: current / 3 .. x 3
+            "One gain at a time, wins re-measured. Simple, stays close to the start."),
+        RANDOM("Random (baseline)", 2.0, "random", "Latin-hypercube samples: what the others must beat."),
     }
 
     class Config(
@@ -261,7 +280,7 @@ class AutoTuner(
         return xs to ys
     }
 
-    // model bookkeeping shared by both methods (see begin/trial)
+    // model bookkeeping shared by all methods (see begin/trial)
     private lateinit var space: Space
     private lateinit var stage: String
     private val xs = mutableListOf<DoubleArray>()
@@ -277,7 +296,7 @@ class AutoTuner(
     /** Search box around the current gains, seeded with matching past trials. */
     private fun begin(factor: Double) {
         space = Space(cfg.ids, params, factor)
-        stage = (if (cfg.method == Method.ML) "ml:" else "twiddle:") + space.names.joinToString("+")
+        stage = cfg.method.tag + ":" + space.names.joinToString("+")
         val (sx, sy) = seed(space)
         xs += sx; ys += sy
         repeat(sx.size) { own += false; fellMask += false }
@@ -294,7 +313,7 @@ class AutoTuner(
         }
         val model = if (xs.isEmpty()) null else GaussianProcess(xs, ys.toDoubleArray())
         gp = model
-        if (cfg.method == Method.ML) chooseBestMl(model!!) else {
+        if (cfg.method != Method.TWIDDLE) chooseBestMl(model!!) else {
             bestX = space.toUnit(cfg.ids.map { best!![it].toDouble() })
             bestPred = bestCost
         }
@@ -380,6 +399,259 @@ class AutoTuner(
         status(if (k < cfg.trials) "Steps below 4 %: converged" else "Trial budget used")
     }
 
+    // ---------------------------------------------------------------- the other methods
+    // ml_tune.py's SearchTuner and subclasses: each search*() is an endless loop over
+    // unit-cube points, and f() throws Budget when the trials are used up.
+
+    private class Budget : Exception()
+
+    private var d = 0
+    private lateinit var x0: DoubleArray
+
+    private fun searchOther() {
+        begin(cfg.range)
+        d = cfg.ids.size
+        x0 = space.toUnit(cfg.ids.map { params[it].toDouble() }) ?: DoubleArray(d) { 0.5 }
+        try {
+            when (cfg.method) {
+                Method.NEURAL -> searchNeural()
+                Method.RL -> searchPolicyGradient()
+                Method.CMAES -> searchCmaes()
+                Method.DE -> searchDifferentialEvolution()
+                Method.PSO -> searchPso()
+                Method.GENETIC -> searchGenetic()
+                Method.NELDER_MEAD -> searchNelderMead()
+                Method.SPSA -> searchSpsa()
+                else -> searchRandom()
+            }
+        } catch (_: Budget) {
+        }
+    }
+
+    /** One trial at unit-cube point [x]; returns its score toY(cost). */
+    private fun f(x: DoubleArray): Double {
+        if (k >= cfg.trials) throw Budget()
+        val u = clip(x)
+        val p = best!!.copyOf()
+        cfg.ids.forEachIndexed { j, i -> p[i] = space.value(j, u[j]).toFloat() }
+        return toY(trial(p, u).first)
+    }
+
+    private fun clip(x: DoubleArray) = DoubleArray(x.size) { x[it].coerceIn(0.0, 1.0) }
+
+    /** Population for the evolutionary methods: 4 + 2 per gain, but at least 3 generations. */
+    private fun popSize() = max(4, min(4 + 2 * d, (cfg.trials - k) / 3))
+
+    private fun firstPopulation(count: Int) = listOf(x0.copyOf()) + latinHypercube(count - 1, d)
+
+    /** Baseline: Latin-hypercube random search. */
+    private fun searchRandom() {
+        for (x in firstPopulation(max(2, cfg.trials - k))) f(x)
+    }
+
+    /** Nelder-Mead downhill simplex; the best vertex is re-measured on a shrink. */
+    private fun searchNelderMead() {
+        val pts = mutableListOf(x0.copyOf())
+        for (j in 0 until d) pts += x0.copyOf().also { it[j] += if (it[j] <= 0.75) 0.25 else -0.25 }
+        var s = pts.map { f(it) to it }.toMutableList()
+        while (true) {
+            s.sortBy { it.first }
+            val c = DoubleArray(d) { j -> (0 until s.size - 1).sumOf { s[it].second[j] } / (s.size - 1) }
+            fun along(t: Double, x: DoubleArray) = clip(DoubleArray(d) { c[it] + t * (x[it] - c[it]) })
+            val (fw, xw) = s.last()
+            val xr = along(-1.0, xw)
+            val fr = f(xr)
+            if (fr < s[0].first) {
+                val xe = along(-2.0, xw)
+                val fe = f(xe)
+                s[s.size - 1] = if (fe < fr) fe to xe else fr to xr
+            } else if (fr < s[s.size - 2].first) {
+                s[s.size - 1] = fr to xr
+            } else {
+                val xc = along(0.5, if (fr < fw) xr else xw)
+                val fc = f(xc)
+                if (fc < min(fr, fw)) s[s.size - 1] = fc to xc
+                else {                                  // shrink towards the best, re-measured
+                    val b = s[0].second
+                    val head = (s[0].first + f(b)) / 2 to b
+                    s = (listOf(head) + s.drop(1).map { (_, x) ->
+                        val y = DoubleArray(d) { b[it] + 0.5 * (x[it] - b[it]) }
+                        f(y) to y
+                    }).toMutableList()
+                }
+            }
+        }
+    }
+
+    /** SPSA: two trials at x +- c delta give a gradient estimate; gain-scheduled steps downhill. */
+    private fun searchSpsa() {
+        var x = x0.copyOf()
+        var a: Double? = null
+        val stab = 2.0
+        var iter = 0
+        while (true) {
+            val ck = 0.12 / (iter + 1.0).pow(0.101)
+            val delta = DoubleArray(d) { if (rng.nextBoolean()) 1.0 else -1.0 }
+            val diff = f(DoubleArray(d) { x[it] + ck * delta[it] }) - f(DoubleArray(d) { x[it] - ck * delta[it] })
+            val g = DoubleArray(d) { diff / (2 * ck) * delta[it] }
+            val a0 = a ?: (0.1 * (stab + 1).pow(0.602) / max(g.maxOf { abs(it) }, 1e-6)).also { a = it }
+            val ak = a0 / (iter + 1 + stab).pow(0.602)
+            x = clip(DoubleArray(d) { x[it] - (ak * g[it]).coerceIn(-0.15, 0.15) })
+            iter++
+        }
+    }
+
+    /** Real-coded GA: tournament of 2, BLX-0.3 crossover, Gaussian mutation, elitism. */
+    private fun searchGenetic() {
+        val n = popSize()
+        var pop = firstPopulation(n)
+        var fit = DoubleArray(n) { f(pop[it]) }
+        val mutation = max(1.0 / d, 0.3)
+        while (true) {
+            fun pick(): DoubleArray {
+                val a = rng.nextInt(n)
+                val b = rng.nextInt(n)
+                return if (fit[a] < fit[b]) pop[a] else pop[b]
+            }
+            val elite = fit.indices.minBy { fit[it] }
+            val kids = mutableListOf(pop[elite])
+            while (kids.size < n) {
+                val p1 = pick()
+                val p2 = pick()
+                kids += clip(DoubleArray(d) { j ->
+                    val span = abs(p1[j] - p2[j])
+                    min(p1[j], p2[j]) - 0.3 * span + rng.nextDouble() * 1.6 * span +
+                        if (rng.nextDouble() < mutation) 0.1 * rng.nextGaussian() else 0.0
+                })
+            }
+            val eliteFit = fit[elite]
+            pop = kids
+            fit = DoubleArray(n) { if (it == 0) eliteFit else f(kids[it]) }
+        }
+    }
+
+    /** Particle swarm: inertia 0.6, c1 = c2 = 1.5, speed <= 0.2 per step. */
+    private fun searchPso() {
+        val n = popSize()
+        val pos = firstPopulation(n).map { it.copyOf() }
+        val vel = List(n) { DoubleArray(d) { 0.05 * rng.nextGaussian() } }
+        val pBest = pos.map { it.copyOf() }.toMutableList()
+        val pFit = DoubleArray(n) { Double.POSITIVE_INFINITY }
+        while (true) {
+            for (j in 0 until n) {
+                val fx = f(pos[j])
+                if (fx < pFit[j]) { pBest[j] = pos[j].copyOf(); pFit[j] = fx }
+            }
+            val g = pBest[pFit.indices.minBy { pFit[it] }]
+            for (j in 0 until n) for (q in 0 until d) {
+                vel[j][q] = (0.6 * vel[j][q] + 1.5 * rng.nextDouble() * (pBest[j][q] - pos[j][q]) +
+                    1.5 * rng.nextDouble() * (g[q] - pos[j][q])).coerceIn(-0.2, 0.2)
+                pos[j][q] = (pos[j][q] + vel[j][q]).coerceIn(0.0, 1.0)
+            }
+        }
+    }
+
+    /** Differential evolution, DE/rand/1/bin, F 0.7, CR 0.9, greedy replacement. */
+    private fun searchDifferentialEvolution() {
+        val n = popSize()
+        val pop = firstPopulation(n).toMutableList()
+        val fit = DoubleArray(n) { f(pop[it]) }
+        while (true) for (j in 0 until n) {
+            val (a, b, c) = (0 until n).filter { it != j }.shuffled(rng).take(3).map { pop[it] }
+            val forced = rng.nextInt(d)
+            val u = DoubleArray(d) { q ->
+                (if (q == forced || rng.nextDouble() < 0.9) a[q] + 0.7 * (b[q] - c[q]) else pop[j][q]).coerceIn(0.0, 1.0)
+            }
+            val fu = f(u)
+            if (fu < fit[j]) { pop[j] = u; fit[j] = fu }
+        }
+    }
+
+    /** CMA-ES, (mu/mu_w, lambda), sigma0 0.2 of the box; the clipped steps are learned from. */
+    private fun searchCmaes() {
+        val lam = 4 + (3 * ln(d.toDouble())).toInt()
+        val mu = lam / 2
+        val raw = DoubleArray(mu) { ln(mu + 0.5) - ln(it + 1.0) }
+        val w = DoubleArray(mu) { raw[it] / raw.sum() }
+        val mueff = 1 / w.sumOf { it * it }
+        val cc = (4 + mueff / d) / (d + 4 + 2 * mueff / d)
+        val cs = (mueff + 2) / (d + mueff + 5)
+        val c1 = 2 / ((d + 1.3).pow(2) + mueff)
+        val cmu = min(1 - c1, 2 * (mueff - 2 + 1 / mueff) / ((d + 2.0).pow(2) + mueff))
+        val damps = 1 + 2 * max(0.0, sqrt((mueff - 1) / (d + 1)) - 1) + cs
+        val chi = sqrt(d.toDouble()) * (1 - 1.0 / (4 * d) + 1.0 / (21.0 * d * d))
+        val m = x0.copyOf()
+        var sigma = 0.2
+        var cov = Array(d) { i -> DoubleArray(d) { j -> if (i == j) 1.0 else 0.0 } }
+        val pc = DoubleArray(d)
+        val ps = DoubleArray(d)
+        var gen = 0
+        while (true) {
+            gen++
+            val (vals, vecs) = symmetricEigen(cov)
+            val sd = DoubleArray(d) { sqrt(max(vals[it], 1e-12)) }
+            val xsGen = List(lam) {
+                val z = DoubleArray(d) { rng.nextGaussian() }
+                clip(DoubleArray(d) { i -> m[i] + sigma * (0 until d).sumOf { j -> vecs[i][j] * sd[j] * z[j] } })
+            }
+            val steps = xsGen.map { x -> DoubleArray(d) { (x[it] - m[it]) / sigma } }
+            val scores = xsGen.map { f(it) }
+            val order = scores.indices.sortedBy { scores[it] }.take(mu)
+            val yw = DoubleArray(d) { i -> order.indices.sumOf { r -> w[r] * steps[order[r]][i] } }
+            for (i in 0 until d) m[i] += sigma * yw[i]
+            val bt = DoubleArray(d) { j -> (0 until d).sumOf { i -> vecs[i][j] * yw[i] } }
+            val whitened = DoubleArray(d) { i -> (0 until d).sumOf { j -> vecs[i][j] * bt[j] / sd[j] } }
+            for (i in 0 until d) ps[i] = (1 - cs) * ps[i] + sqrt(cs * (2 - cs) * mueff) * whitened[i]
+            val psNorm = sqrt(ps.sumOf { it * it })
+            val hs = psNorm / sqrt(1 - (1 - cs).pow(2.0 * gen)) < (1.4 + 2.0 / (d + 1)) * chi
+            for (i in 0 until d) pc[i] = (1 - cc) * pc[i] + (if (hs) sqrt(cc * (2 - cc) * mueff) else 0.0) * yw[i]
+            val keep = if (hs) 0.0 else cc * (2 - cc)
+            val old = cov
+            cov = Array(d) { i -> DoubleArray(d) { j ->
+                (1 - c1 - cmu) * old[i][j] + c1 * (pc[i] * pc[j] + keep * old[i][j]) +
+                    cmu * order.indices.sumOf { r -> w[r] * steps[order[r]][i] * steps[order[r]][j] }
+            } }
+            sigma = min(0.5, sigma * exp(cs / damps * (psNorm / chi - 1)))
+        }
+    }
+
+    /** Neural surrogate: an [MlpEnsemble]; the next trial minimises mean - 1.5 x member spread. */
+    private fun searchNeural() {
+        for (x in firstPopulation(max(1, d + 3 - xs.size))) f(x)
+        while (true) {
+            val net = MlpEnsemble(xs, ys.toDoubleArray(), rng)
+            val cand = List(3000) { DoubleArray(d) { rng.nextDouble() } } +
+                (bestX?.let { b -> List(600) { clip(DoubleArray(d) { j -> b[j] + 0.07 * rng.nextGaussian() }) } }
+                    ?: emptyList())
+            f(cand.minBy { val (mean, spread) = net.predict(it); mean - 1.5 * spread })
+        }
+    }
+
+    /**
+     * Reinforcement learning, episodic: PGPE (policy-gradient over the gains). The policy is a
+     * Gaussian over the unit cube; each step plays mean +- eps (one trial each, reward = -score)
+     * and moves the mean towards the better one and the widths towards what paid off.
+     */
+    private fun searchPolicyGradient() {
+        val mean = x0.copyOf()
+        val sig = DoubleArray(d) { 0.15 }
+        val rewards = mutableListOf<Double>()
+        while (true) {
+            val eps = DoubleArray(d) { sig[it] * rng.nextGaussian() }
+            val rPlus = -f(DoubleArray(d) { mean[it] + eps[it] })
+            val rMinus = -f(DoubleArray(d) { mean[it] - eps[it] })
+            rewards += rPlus; rewards += rMinus
+            val avg = rewards.average()
+            val scale = max(sqrt(rewards.sumOf { (it - avg) * (it - avg) } / rewards.size), 0.05)
+            val base = if (rewards.size > 2) rewards.dropLast(2).average() else (rPlus + rMinus) / 2
+            for (i in 0 until d) {
+                mean[i] = (mean[i] + (0.5 * eps[i] * (rPlus - rMinus) / (2 * scale)).coerceIn(-0.15, 0.15)).coerceIn(0.0, 1.0)
+                sig[i] = (sig[i] + 0.1 * ((rPlus + rMinus) / 2 - base) / scale * (eps[i] * eps[i] - sig[i] * sig[i]) / sig[i])
+                    .coerceIn(0.03, 0.3)
+            }
+        }
+    }
+
     private fun report(cost: Double, fell: Boolean, gp: GaussianProcess): Report {
         val d = space.ids.size
         val base = bestX ?: xs.last()
@@ -421,7 +693,11 @@ class AutoTuner(
             waitUpright(false)
             status("Running")
             if (cfg.trimAngle0) trimAngle0()
-            if (cfg.method == Method.ML) searchMl() else searchTwiddle()
+            when (cfg.method) {
+                Method.ML -> searchMl()
+                Method.TWIDDLE -> searchTwiddle()
+                else -> searchOther()
+            }
         } catch (_: Stopped) {
             reason = "stopped"
         } catch (_: InterruptedException) {
@@ -609,4 +885,135 @@ class GaussianProcess(private val xs: List<DoubleArray>, y: DoubleArray) {
             return 0.5 * (1 + if (z >= 0) erf else -erf)
         }
     }
+}
+
+/**
+ * Deep ensemble of small neural networks, d -> 32 -> 32 -> 1 (tanh), each from its own random
+ * start, trained full-batch with Adam and weight decay (ml_tune.py's MlpEnsemble). The spread
+ * between members stands in for the GP's uncertainty.
+ */
+class MlpEnsemble(xs: List<DoubleArray>, y: DoubleArray, rng: Random) {
+    private val d = xs[0].size
+    private val mu = y.average()
+    private val sd: Double
+    private val nets: List<Array<DoubleArray>>
+    private val h1 = DoubleArray(HIDDEN)
+    private val h2 = DoubleArray(HIDDEN)
+
+    init {
+        val sdev = sqrt(y.sumOf { (it - mu) * (it - mu) } / y.size)
+        sd = if (sdev > 1e-9) sdev else 1.0
+        val z = DoubleArray(y.size) { (y[it] - mu) / sd }
+        nets = List(MEMBERS) { train(xs, z, rng) }
+    }
+
+    /** Weights: W0 (d x H), b0, W1 (H x H), b1, W2 (H), b2; fills h1/h2, returns the output. */
+    private fun forward(w: Array<DoubleArray>, x: DoubleArray): Double {
+        val h = HIDDEN
+        for (a in 0 until h) {
+            var s = w[1][a]
+            for (i in 0 until d) s += x[i] * w[0][i * h + a]
+            h1[a] = tanh(s)
+        }
+        var out = w[5][0]
+        for (b in 0 until h) {
+            var s = w[3][b]
+            for (a in 0 until h) s += h1[a] * w[2][a * h + b]
+            h2[b] = tanh(s)
+            out += h2[b] * w[4][b]
+        }
+        return out
+    }
+
+    private fun train(xs: List<DoubleArray>, z: DoubleArray, rng: Random): Array<DoubleArray> {
+        val h = HIDDEN
+        val w = arrayOf(
+            DoubleArray(d * h) { rng.nextGaussian() / sqrt(d.toDouble()) }, DoubleArray(h),
+            DoubleArray(h * h) { rng.nextGaussian() / sqrt(h.toDouble()) }, DoubleArray(h),
+            DoubleArray(h) { rng.nextGaussian() / sqrt(h.toDouble()) }, DoubleArray(1),
+        )
+        val g = Array(6) { DoubleArray(w[it].size) }
+        val m1 = Array(6) { DoubleArray(w[it].size) }
+        val m2 = Array(6) { DoubleArray(w[it].size) }
+        val g2 = DoubleArray(h)
+        for (t in 1..STEPS) {
+            for (gj in g) gj.fill(0.0)
+            for (s in xs.indices) {
+                val go = 2 * (forward(w, xs[s]) - z[s]) / xs.size
+                g[5][0] += go
+                for (b in 0 until h) {
+                    g[4][b] += h2[b] * go
+                    g2[b] = go * w[4][b] * (1 - h2[b] * h2[b])
+                    g[3][b] += g2[b]
+                }
+                for (a in 0 until h) {
+                    var back = 0.0
+                    for (b in 0 until h) {
+                        g[2][a * h + b] += h1[a] * g2[b]
+                        back += g2[b] * w[2][a * h + b]
+                    }
+                    val g1 = back * (1 - h1[a] * h1[a])
+                    g[1][a] += g1
+                    for (i in 0 until d) g[0][i * h + a] += xs[s][i] * g1
+                }
+            }
+            val c1 = 1 - 0.9.pow(t)
+            val c2 = 1 - 0.999.pow(t)
+            for (j in 0 until 6) for (q in w[j].indices) {
+                val gq = g[j][q] + DECAY * w[j][q]
+                m1[j][q] = 0.9 * m1[j][q] + 0.1 * gq
+                m2[j][q] = 0.999 * m2[j][q] + 0.001 * gq * gq
+                w[j][q] -= LR * (m1[j][q] / c1) / (sqrt(m2[j][q] / c2) + 1e-8)
+            }
+        }
+        return w
+    }
+
+    /** Ensemble mean and spread of the cost (in y units) at [x]. */
+    fun predict(x: DoubleArray): Pair<Double, Double> {
+        val out = nets.map { forward(it, x) }
+        val mean = out.average()
+        val spread = sqrt(out.sumOf { (it - mean) * (it - mean) } / out.size)
+        return mu + sd * mean to sd * spread
+    }
+
+    private companion object {
+        const val MEMBERS = 5
+        const val HIDDEN = 32
+        const val STEPS = 500
+        const val LR = 0.01
+        const val DECAY = 1e-3
+    }
+}
+
+/** Eigenvalues and eigenvectors (as columns) of a small symmetric matrix, cyclic Jacobi. */
+fun symmetricEigen(m: Array<DoubleArray>): Pair<DoubleArray, Array<DoubleArray>> {
+    val n = m.size
+    val a = Array(n) { m[it].copyOf() }
+    val v = Array(n) { i -> DoubleArray(n) { j -> if (i == j) 1.0 else 0.0 } }
+    for (sweep in 0 until 50) {
+        var off = 0.0
+        for (p in 0 until n) for (q in p + 1 until n) off += a[p][q] * a[p][q]
+        if (off < 1e-22) break
+        for (p in 0 until n) for (q in p + 1 until n) {
+            if (abs(a[p][q]) < 1e-300) continue
+            val theta = (a[q][q] - a[p][p]) / (2 * a[p][q])
+            val t = (if (theta >= 0) 1.0 else -1.0) / (abs(theta) + sqrt(theta * theta + 1))
+            val c = 1 / sqrt(t * t + 1)
+            val s = t * c
+            for (k in 0 until n) {
+                val kp = a[k][p]; val kq = a[k][q]
+                a[k][p] = c * kp - s * kq; a[k][q] = s * kp + c * kq
+            }
+            for (k in 0 until n) {
+                val pk = a[p][k]; val qk = a[q][k]
+                a[p][k] = c * pk - s * qk; a[q][k] = s * pk + c * qk
+            }
+            for (k in 0 until n) {
+                val kp = v[k][p]; val kq = v[k][q]
+                v[k][p] = c * kp - s * kq; v[k][q] = s * kp + c * kq
+            }
+        }
+    }
+    return DoubleArray(n) { a[it][it] } to v
 }

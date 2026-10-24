@@ -24,7 +24,10 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
@@ -610,15 +613,25 @@ class MainActivity : Activity(), SerialLink.Listener {
         }
         row().let { autoTrials = field(it, "Trials", "20"); autoTrialS = field(it, "  Trial s", "8") }
         row().let { autoNudge = field(it, "Nudge", "90"); autoRange = field(it, "  Range ×", "2") }
-        findViewById<android.widget.RadioGroup>(R.id.rgAutoMethod).setOnCheckedChangeListener { _, _ ->
-            autoRange.setText("%.0f".format(autoMethod().defaultRange))
+        val methodHint = findViewById<TextView>(R.id.tvAutoMethodHint)
+        findViewById<Spinner>(R.id.spAutoMethod).apply {
+            adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item,
+                AutoTuner.Method.entries.map { it.label }).also {
+                it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+                    val m = AutoTuner.Method.entries[pos]
+                    autoRange.setText("%.0f".format(m.defaultRange))
+                    methodHint.text = m.hint
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         }
         btnAutoTune.setOnClickListener { if (tuner?.running == true) stopAutoTune() else startAutoTune() }
     }
 
-    private fun autoMethod() =
-        if (findViewById<android.widget.RadioButton>(R.id.rbAutoTwiddle).isChecked) AutoTuner.Method.TWIDDLE
-        else AutoTuner.Method.ML
+    private fun autoMethod() = AutoTuner.Method.entries[findViewById<Spinner>(R.id.spAutoMethod).selectedItemPosition]
 
     private fun autoLog() = File(getExternalFilesDir(null) ?: filesDir, "ml_tune_log.csv")
 

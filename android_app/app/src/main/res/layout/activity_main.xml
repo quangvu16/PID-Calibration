@@ -277,30 +277,18 @@
                         android:textColor="@color/muted"
                         android:textSize="12sp" />
 
-                    <RadioGroup
-                        android:id="@+id/rgAutoMethod"
+                    <Spinner
+                        android:id="@+id/spAutoMethod"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:orientation="horizontal">
+                        android:layout_marginTop="6dp" />
 
-                        <RadioButton
-                            android:id="@+id/rbAutoMl"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="true"
-                            android:text="ML (Bayesian)"
-                            android:textColor="@color/fg" />
-
-                        <RadioButton
-                            android:id="@+id/rbAutoTwiddle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Twiddle"
-                            android:textColor="@color/fg" />
-                    </RadioGroup>
+                    <TextView
+                        android:id="@+id/tvAutoMethodHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/muted"
+                        android:textSize="12sp" />
 
                     <LinearLayout
                         android:id="@+id/autoGains"
