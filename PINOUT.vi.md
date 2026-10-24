@@ -2,6 +2,8 @@
 
 *[English](PINOUT.md) · Tiếng Việt · [Bản tương tác](https://claude.ai/artifact/8strAkTf6Lz7dgaNkb2ueQ) (riêng tư cho tới khi được chia sẻ)*
 
+App điện thoại cho robot này: [tải BalanceTuner-v1.1.apk](releases/BalanceTuner-v1.1.apk).
+
 Mọi chân của Arduino Nano (ATmega328P) và bộ phận mà firmware `BalancingRobotTuner` nối vào
 chân đó. Lấy từ phần khai báo chân, `Pin_Config()` và `setup()` trong
 `BalancingRobotTuner/BalancingRobotTuner.ino`; trái/phải của động cơ lấy từ hàm `pwma()` của
