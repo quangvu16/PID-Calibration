@@ -13,7 +13,7 @@ it, it shares D0/D1 with the Nano's USB chip and would talk over it.
 - `android_app/` – the Balance Tuner app (Kotlin, no libraries; its own small USB-serial
   driver for CH340, CP210x, FT232R and CDC-ACM in `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
   ready-built download: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
-- `BalancingRobotTunerESP32S3/` – the same firmware for an ESP32-S3-DevKitC-1 N16R8 (see [ESP32-S3 version](#esp32-s3-version)).
+- `BalancingRobotTunerESP32S3/` – the same firmware for an ESP32-S3-DevKitC-1 N16R8, plus Wi-Fi/WebSocket and Bluetooth LE control ([`ESP32S3.md`](ESP32S3.md)).
 - `serial_monitor.py` – decodes the same stream on a PC (`/dev/ttyUSB0`).
 - [`ANDROID_APP.md`](ANDROID_APP.md) – a step-by-step guide to the Android app: connecting, driving, tuning by hand and auto-tune ([Vietnamese](ANDROID_APP.vi.md)).
 - [`PINOUT.md`](PINOUT.md) – which Nano pin goes to which part (motor driver, encoders, IMU, sonar, LED, buzzer).
@@ -37,43 +37,13 @@ arduino-cli upload  --fqbn arduino:avr:nano:cpu=atmega328 -p /dev/ttyUSB0 .
 ## ESP32-S3 version
 
 `BalancingRobotTunerESP32S3/` is the same firmware for an **ESP32-S3-DevKitC-1 N16R8** wired to
-the robot in place of the Nano. The protocol, parameters, telemetry and modes are unchanged, so
-the app, `tuner_gui.py`, `autotune.py` and `serial_monitor.py` work with it as they are. The
-balance loop runs in a FreeRTOS task every 5 ms and the sonar in its own task, so a missing echo
-cannot stall balancing.
+the robot in place of the Nano. Over USB it works with the app and the PC tools as they are. It
+can also be driven and tuned over **Wi-Fi**, from a control page the robot serves at
+`http://192.168.4.1/` or over a WebSocket, and over **Bluetooth LE** (Nordic UART Service).
 
-```bash
-cd "~/Arduino/ZYC0049 Self Balance/BalanceTuner/BalancingRobotTunerESP32S3"
-FQBN=esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB
-arduino-cli compile --fqbn $FQBN .
-arduino-cli upload  --fqbn $FQBN -p /dev/ttyACM0 .
-```
+[![ESP32-S3-DevKitC-1 pinout: which GPIO goes to which part of the robot](pinout_esp32s3.svg)](ESP32S3.md)
 
-Plug the phone or PC into the board's **USB** port (native USB, appears as `/dev/ttyACM0`; the
-app connects to it as CDC-ACM). With `CDCOnBoot=default` instead, the firmware talks on the
-**UART** port (`/dev/ttyUSB0`, 115200 baud). If an upload does not start, hold BOOT, tap RST,
-release BOOT.
-
-| Signal | ESP32-S3 GPIO | Nano pin | Note |
-| --- | --- | --- | --- |
-| TB6612 PWMA (left speed) | 4 | D10 | |
-| TB6612 AIN1 / AIN2 (left dir) | 5 / 6 | D12 / D13 | |
-| TB6612 PWMB (right speed) | 7 | D9 | |
-| TB6612 BIN1 / BIN2 (right dir) | 15 / 16 | D7 / D6 | |
-| TB6612 STBY | 17 | D8 | |
-| Encoder left / right | 1 / 2 | D2 / D4 | 3.3 V max: divide a 5 V encoder output |
-| MPU6050 SDA / SCL | 8 / 9 | A4 / A5 | pull-ups must go to 3.3 V |
-| HC-SR04 TRIG | 10 | D3 | 3.3 V trigger works on most modules |
-| HC-SR04 ECHO | 11 | D5 | 5 V output: divider, e.g. 1 kΩ in series, 2 kΩ to GND |
-| Buzzer | 12 | D11 | |
-| RGB LED R / G / B | 13 / 14 / 21 | A0 / A1 / A2 | active low |
-| GND | GND | GND | common ground with the robot is required |
-
-**The ESP32-S3's pins are 3.3 V and not 5 V tolerant.** Check every signal that comes *from* the
-robot (encoders, echo, I2C pull-ups) before connecting it. The TB6612's inputs accept 3.3 V
-logic. A common-anode RGB LED on 5 V may glow faintly when "off", because 3.3 V does not reach
-its anode voltage. The pins avoid the strapping pins, native USB (19/20), the flash and octal
-PSRAM (26–37) and the on-board LED (38/48).
+Wiring (the ESP32-S3 is 3.3 V only), building, Wi-Fi and Bluetooth: [`ESP32S3.md`](ESP32S3.md).
 
 ## Build the app
 

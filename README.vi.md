@@ -13,7 +13,7 @@ vì nó dùng chung chân D0/D1 với chip USB của Nano và sẽ tranh đườ
 - `android_app/` – app Balance Tuner (Kotlin, không dùng thư viện ngoài; có driver USB-serial
   riêng cho CH340, CP210x, FT232R và CDC-ACM trong `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
   bản build sẵn để tải: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
-- `BalancingRobotTunerESP32S3/` – cùng firmware đó cho ESP32-S3-DevKitC-1 N16R8 (xem [Bản ESP32-S3](#bản-esp32-s3)).
+- `BalancingRobotTunerESP32S3/` – cùng firmware đó cho ESP32-S3-DevKitC-1 N16R8, thêm điều khiển qua Wi-Fi/WebSocket và Bluetooth LE ([`ESP32S3.vi.md`](ESP32S3.vi.md)).
 - `serial_monitor.py` – giải mã cùng luồng dữ liệu đó trên máy tính (`/dev/ttyUSB0`).
 - [`ANDROID_APP.vi.md`](ANDROID_APP.vi.md) – hướng dẫn dùng app Android: kết nối, lái, chỉnh PID bằng tay và tự chỉnh.
 - [`PINOUT.vi.md`](PINOUT.vi.md) – sơ đồ chân: chân nào của Nano nối với bộ phận nào (driver động cơ, encoder, IMU, siêu âm, LED, còi).
@@ -38,41 +38,13 @@ arduino-cli upload  --fqbn arduino:avr:nano:cpu=atmega328 -p /dev/ttyUSB0 .
 ## Bản ESP32-S3
 
 `BalancingRobotTunerESP32S3/` là cùng firmware đó cho **ESP32-S3-DevKitC-1 N16R8**, đấu vào robot
-thay cho Nano. Giao thức, tham số, telemetry và các chế độ giữ nguyên, nên app, `tuner_gui.py`,
-`autotune.py` và `serial_monitor.py` dùng được ngay. Vòng cân bằng chạy trong một task FreeRTOS mỗi
-5 ms, cảm biến siêu âm chạy trong task riêng, nên không có tiếng vọng cũng không làm kẹt vòng cân
-bằng.
+thay cho Nano. Qua USB nó chạy ngay với app và các công cụ trên máy tính. Ngoài ra có thể lái và
+chỉnh nó qua **Wi-Fi**, bằng trang điều khiển robot phát tại `http://192.168.4.1/` hoặc qua
+WebSocket, và qua **Bluetooth LE** (Nordic UART Service).
 
-```bash
-cd "~/Arduino/ZYC0049 Self Balance/BalanceTuner/BalancingRobotTunerESP32S3"
-FQBN=esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB
-arduino-cli compile --fqbn $FQBN .
-arduino-cli upload  --fqbn $FQBN -p /dev/ttyACM0 .
-```
+[![Sơ đồ chân ESP32-S3-DevKitC-1: GPIO nào nối với bộ phận nào của robot (hình bằng tiếng Anh)](pinout_esp32s3.svg)](ESP32S3.vi.md)
 
-Cắm điện thoại hoặc máy tính vào cổng **USB** của board (USB gốc, hiện thành `/dev/ttyACM0`; app
-kết nối như CDC-ACM). Nếu dùng `CDCOnBoot=default`, firmware nói chuyện qua cổng **UART**
-(`/dev/ttyUSB0`, 115200 baud). Nếu không nạp được: giữ BOOT, bấm RST, rồi thả BOOT.
-
-| Tín hiệu | GPIO ESP32-S3 | Chân Nano | Ghi chú |
-| --- | --- | --- | --- |
-| TB6612 PWMA (tốc độ trái) | 4 | D10 | |
-| TB6612 AIN1 / AIN2 (hướng trái) | 5 / 6 | D12 / D13 | |
-| TB6612 PWMB (tốc độ phải) | 7 | D9 | |
-| TB6612 BIN1 / BIN2 (hướng phải) | 15 / 16 | D7 / D6 | |
-| TB6612 STBY | 17 | D8 | |
-| Encoder trái / phải | 1 / 2 | D2 / D4 | tối đa 3,3 V: chia áp nếu encoder ra 5 V |
-| MPU6050 SDA / SCL | 8 / 9 | A4 / A5 | điện trở kéo lên phải về 3,3 V |
-| HC-SR04 TRIG | 10 | D3 | xung kích 3,3 V chạy được với đa số module |
-| HC-SR04 ECHO | 11 | D5 | ra 5 V: chia áp, ví dụ 1 kΩ nối tiếp, 2 kΩ xuống GND |
-| Còi | 12 | D11 | |
-| LED RGB R / G / B | 13 / 14 / 21 | A0 / A1 / A2 | tích cực mức thấp |
-| GND | GND | GND | bắt buộc nối chung mass với robot |
-
-**Các chân của ESP32-S3 là 3,3 V và không chịu được 5 V.** Hãy kiểm tra mọi tín hiệu đi *từ* robot
-vào (encoder, echo, điện trở kéo lên I2C) trước khi nối. Ngõ vào của TB6612 nhận được logic 3,3 V.
-LED RGB anode chung nối 5 V có thể sáng mờ khi "tắt", vì 3,3 V không đủ tới điện áp anode. Các chân
-đã tránh chân strapping, USB gốc (19/20), flash và PSRAM octal (26–37) và LED trên board (38/48).
+Đấu dây (ESP32-S3 chỉ chịu 3,3 V), build, Wi-Fi và Bluetooth: [`ESP32S3.vi.md`](ESP32S3.vi.md).
 
 ## Build app
 
