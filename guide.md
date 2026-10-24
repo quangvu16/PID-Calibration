@@ -210,6 +210,16 @@ effect in the Serial Monitor. Tune in this order, one parameter at a time:
 4. Bring back `kp_speed`, then `ki_speed` (≈ `kp_speed` / 50) until it holds its place.
 5. Save to EEPROM.
 
+**From a phone browser (ESP32-S3 version).** With the
+[`BalancingRobotTunerESP32S3`](ESP32S3.md) firmware, the same steps work without a PC or the app:
+join the robot's Wi-Fi (`BalanceTuner-XXXX`, password `balance123`) and open
+**http://192.168.4.1/**. The page sets each parameter (type a value, **Set**), saves with
+**Save to robot**, and shows the tilt over the last 10 seconds. It has no per-term charts or
+statistics, so for steps 2–4 the phone app or `tuner_gui.py` show more; see the
+[ESP32-S3 guide](ESP32S3.md#wi-fi-control-page-and-websocket).
+
+<a href="ESP32S3.md#wi-fi-control-page-and-websocket"><img src="web_control.svg" width="280" alt="The ESP32-S3 control page in a phone browser: status, tilt chart, drive controls with joystick, and the PID parameters"></a>
+
 ---
 
 ## 6. Troubleshooting
