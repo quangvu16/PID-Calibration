@@ -1,5 +1,7 @@
 # BalanceTuner
 
+*English · [Tiếng Việt](README.vi.md)*
+
 Live PID tuning and remote control for the ZYC0049 (PBOT 3.0) balancing robot over a USB
 cable from the phone (USB OTG) to the Nano. The HC-06 Bluetooth module is not used: unplug
 it, it shares D0/D1 with the Nano's USB chip and would talk over it.
@@ -63,6 +65,105 @@ applies at once, -/+ = ±10 %, angle0 ±0.1°), Get/Save/Load/Defaults, motors o
 rate, a Nudge (forward then back) to watch the recovery, window statistics, "angle0 from
 mean" trim, and Record CSV (telemetry plus the parameters in force). Close the Arduino
 Serial Monitor first; closing the window switches the robot back to text mode.
+
+### `tuner_gui.py` in detail
+
+**Start.** `python3 tuner_gui.py [port] [-b baud] [--window s]` (defaults `/dev/ttyUSB0`,
+115200, 10 s). It needs `python3-tk`, matplotlib, numpy and pyserial. Opening the port resets
+the Nano, so the GUI waits 2.5 s, then switches the robot to binary telemetry (`b`), sets the
+telemetry rate and reads the parameters. If that fails, the red status line at the bottom
+says so; check the port and press **Get**. Closing the window stops the wheels and puts the
+robot back in text mode (`d`) for the Serial Monitor.
+
+**Layout.** Left: the Parameters, Robot and Auto-tune panels, the statistics and the status
+line. Right: five charts on one time axis, the last *Window s* seconds (0 = now), redrawn
+every 100 ms:
+
+| Chart | Series | What to look for |
+| --- | --- | --- |
+| Tilt / angle (deg) | tilt = angle + angle0, raw angle; black line at 0 | tilt should stay near 0. Fast buzzing: Kp too high. Slow wobble: more Kd |
+| Gyro (deg/s) | rate around the wheel axle (what Kd multiplies) | spikes = jerks; RMS is in the statistics |
+| Loop terms | angle term (Kp, Kd), speed term (speed Kp, Ki), turn term | which loop does the work; a large speed term fighting the angle term is slow rocking |
+| PWM | left / right motor command; red dashed lines at ±250 | touching ±250 = saturated: the motors have nothing left to recover with |
+| Wheel speed | encoder pulses per frame, left / right | drifting away: speed Kp too low; slow back-and-forth: speed Kp too high |
+
+**Parameters panel.** One row per parameter: Kp/Kd (angle), Kp/Ki speed, Kp/Kd turn, angle0
+(deg) and drive speed. Type a value and press Enter or **Set**: it is clamped to the firmware
+limits (Kp 0–100, Kd 0–10, speed Kp 0–50, speed Ki 0–2, turn Kp 0–50, turn Kd 0–5, angle0
+±15°, drive speed 0–100). The robot then echoes the value it really applied, and the box shows
+that echo. **−/+** change a gain by 10 % and angle0 by 0.1°. Changes act at once but are lost
+at power-off until saved. **Get** re-reads the robot, **Save** writes EEPROM (after a
+question), **Load** goes back to what EEPROM holds, **Defaults** to the firmware's defaults.
+
+**Robot panel.**
+- **Motors on**: switches the motors on or off.
+- **Nudge**: drives forward for 0.4 s, then back for 0.4 s, so you can watch the robot recover.
+- **Telemetry Hz**: 1–25 frames per second (25 by default).
+- **Window s**: how many seconds the charts show (2–40).
+- **Pause**: freezes the charts. Telemetry keeps arriving, and recording continues.
+- **Record CSV**: writes every frame (`host_s`, the telemetry fields) plus the 8 parameters in
+  force at that moment.
+- **angle0 from mean**: with the robot balancing in place, offers angle0 = −(mean raw angle)
+  over the visible window. It needs at least 20 frames.
+
+**Statistics** (over the visible window): state (motors on / motors off / FALLEN), received
+frame rate, tilt mean and spread, gyro RMS, wheel speed RMS, share of PWM-saturated frames,
+and the ultrasonic distance.
+
+**Auto-tune panel.**
+- **Method list**: pick a method; the hint under it says what the method does. Picking a
+  method also sets its Range.
+- **Gains to tune**: tick them (angle Kp and Kd by default; speed Kp, speed Ki and angle0
+  optional).
+- **trim angle0 first**: one still trial first, then sets angle0 = −mean angle.
+- **learn from past trials**: earlier runs' logs feed the model, when their other gains match.
+- **Settings**: Trials 5–80 (default 20), Trial s 4–20 (8), Nudge 0–127 (90; 0 = no push),
+  Range × 1.2–5 (the search box is current ÷ Range to current × Range).
+- **Start auto-tune**: asks first, with the expected time (trials × (trial s + 3) ÷ 60 min).
+  It then switches the motors on and the telemetry to 25 Hz, because the cost's wheel speed
+  is per frame.
+- **During the run**: the info line shows each trial's values, then its cost or FELL, and the
+  best set so far with its predicted cost.
+- **Stop auto-tune**: stops after the current trial, and the best set found stays applied.
+- **At the end**: lists what changed and asks whether to write it to EEPROM.
+
+**One trial**, the same for every method and in `autotune.py`:
+1. Wait until the robot has stood for 1.5 s with the last parameters: at least 25 frames,
+   raw angle within ±15°, not fallen.
+2. Apply the new set, then wait 1.5 s for it to settle.
+3. After 1 s, nudge it forward 0.4 s and back 0.4 s (unless Nudge is 0).
+4. Measure until *Trial s* is up, or until it falls. A fall is the firmware's fallen flag or
+   a raw angle beyond ±30°.
+
+The cost is
+
+  angle std + 0.1 × gyro RMS + 0.2 × wheel-speed RMS + 0.005 × travel + 20 × saturated share
+
+where travel is the largest distance from the start in encoder pulses. A fall costs
+100 + 10 × the seconds it did not last. After a fall the best set is put back, and the tuner
+waits for you to stand the robot up; it balances by itself once upright.
+
+**Model window** (**Model** button; opens at the first trial):
+- **Left chart**: the cost of each trial, on a log scale. A red × is a fall; the green step
+  line is the best trial so far; the dashed line is the model's predicted best (for Twiddle,
+  the mean of its two confirming trials).
+- **Right chart, one gain ticked**: the model's predicted cost against that gain, with a band
+  of ±2 standard deviations.
+- **Right chart, two or more gains**: a colour map of the first two gains, dark meaning
+  better, with any other gains held at their best. The white star is the best set; red dots
+  are falls, grey ones past runs. Gains are on log axes, angle0 on a linear one.
+
+**Files.** Every trial is appended to `ml_tune_log.csv` next to the script: trial number,
+stage (`method:gains`), the 8 parameters, cost, fell, angle mean and std, gyro RMS, speed
+RMS, travel and saturation. That log and `autotune_log.csv` are what "learn from past trials"
+reads.
+
+**If something is wrong.**
+- **"no telemetry" or "no reply from the robot"**: another program holds the port (close the
+  Arduino Serial Monitor), or the port is wrong (try `/dev/ttyACM0`).
+- **Permission denied on the port**: add yourself to the `dialout` group and log in again.
+- **The robot falls during almost every trial**: start from parameters that already balance,
+  lower Range, or set Nudge to 0.
 
 ## Auto-tune from a PC
 
