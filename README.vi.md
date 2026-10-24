@@ -14,6 +14,7 @@ vì nó dùng chung chân D0/D1 với chip USB của Nano và sẽ tranh đườ
   riêng cho CH340, CP210x, FT232R và CDC-ACM trong `UsbSerialPort.kt`). APK: `~/BalanceTuner.apk`;
   bản build sẵn để tải: [`releases/BalanceTuner-v1.1.apk`](releases/BalanceTuner-v1.1.apk).
 - `serial_monitor.py` – giải mã cùng luồng dữ liệu đó trên máy tính (`/dev/ttyUSB0`).
+- [`ANDROID_APP.vi.md`](ANDROID_APP.vi.md) – hướng dẫn dùng app Android: kết nối, lái, chỉnh PID bằng tay và tự chỉnh.
 - [`PINOUT.vi.md`](PINOUT.vi.md) – sơ đồ chân: chân nào của Nano nối với bộ phận nào (driver động cơ, encoder, IMU, siêu âm, LED, còi).
 
 ## Nạp firmware
