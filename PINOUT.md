@@ -1,6 +1,6 @@
 # ZYC0049 pinout
 
-*[Interactive version](https://claude.ai/artifact/8strAkTf6Lz7dgaNkb2ueQ) (private until shared)*
+*English · [Tiếng Việt](PINOUT.vi.md) · [Interactive version](https://claude.ai/artifact/8strAkTf6Lz7dgaNkb2ueQ) (private until shared)*
 
 Every Arduino Nano (ATmega328P) pin and what the `BalancingRobotTuner` firmware connects to it.
 Taken from the pin definitions, `Pin_Config()` and `setup()` in
