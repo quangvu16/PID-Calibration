@@ -4,6 +4,8 @@
 
 App điện thoại cho robot này: [tải BalanceTuner-v1.1.apk](releases/BalanceTuner-v1.1.apk).
 
+![Sơ đồ chân ZYC0049: các chân của Arduino Nano và bộ phận nối vào từng chân (hình bằng tiếng Anh)](pinout.svg)
+
 Mọi chân của Arduino Nano (ATmega328P) và bộ phận mà firmware `BalancingRobotTuner` nối vào
 chân đó. Lấy từ phần khai báo chân, `Pin_Config()` và `setup()` trong
 `BalancingRobotTuner/BalancingRobotTuner.ino`; trái/phải của động cơ lấy từ hàm `pwma()` của

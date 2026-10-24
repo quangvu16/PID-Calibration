@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="700" viewBox="0 0 980 700">
+<title>ZYC0049 pinout: Arduino Nano pins used by the BalancingRobotTuner firmware</title>
+<rect width="980" height="700" fill="#fbfbf9"/>
+<text x="40" y="52" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="700" fill="#1d2321" text-anchor="start">ZYC0049 Pinout</text>
+<text x="40" y="78" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#5d6762" text-anchor="start">Arduino Nano (ATmega328P) as used by the BalancingRobotTuner firmware · pins listed from the USB end</text>
+<line x1="40" y1="92" x2="940" y2="92" stroke="#1d2321" stroke-width="2"/>
+<rect x="462" y="94" width="56" height="32" rx="4" fill="#b9c1bd" stroke="#16302a" stroke-width="1.5"/>
+<rect x="400" y="110" width="180" height="490" rx="8" fill="#22433a" stroke="#16302a" stroke-width="2"/>
+<text x="490.0" y="140" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="10" font-weight="400" fill="#e9efe9" text-anchor="middle" letter-spacing="1">USB</text>
+<rect x="460" y="332" width="60" height="60" rx="3" fill="#16302a"/>
+<text x="490.0" y="366" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="10" font-weight="400" fill="#e9efe9" text-anchor="middle">328P</text>
+<text x="490.0" y="585" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="middle" letter-spacing="2">NANO</text>
+<circle cx="400" cy="152" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="156" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">D13</text>
+<line x1="389" y1="152" x2="354" y2="152" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="148" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="342" y="156.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="end">AIN2 · left motor dir</text>
+<circle cx="400" cy="182" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="186" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">3V3</text>
+<line x1="389" y1="182" x2="354" y2="182" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="178" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="342" y="186.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">3.3 V</text>
+<circle cx="400" cy="212" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="216" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">AREF</text>
+<line x1="389" y1="212" x2="354" y2="212" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="208" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="342" y="216.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">AREF</text>
+<circle cx="400" cy="242" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="246" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A0</text>
+<line x1="389" y1="242" x2="354" y2="242" stroke="#be185d" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="238" width="8" height="8" rx="2" fill="#be185d"/>
+<text x="342" y="246.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="end">LED red</text>
+<circle cx="400" cy="272" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="276" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A1</text>
+<line x1="389" y1="272" x2="354" y2="272" stroke="#be185d" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="268" width="8" height="8" rx="2" fill="#be185d"/>
+<text x="342" y="276.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="end">LED green</text>
+<circle cx="400" cy="302" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="306" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A2</text>
+<line x1="389" y1="302" x2="354" y2="302" stroke="#be185d" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="298" width="8" height="8" rx="2" fill="#be185d"/>
+<text x="342" y="306.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="end">LED blue</text>
+<circle cx="400" cy="332" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="336" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A3</text>
+<line x1="389" y1="332" x2="354" y2="332" stroke="#7d8a84" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="328" width="8" height="8" rx="2" fill="#7d8a84"/>
+<text x="342" y="336.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">free</text>
+<circle cx="400" cy="362" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="366" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A4</text>
+<line x1="389" y1="362" x2="354" y2="362" stroke="#15803d" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="358" width="8" height="8" rx="2" fill="#15803d"/>
+<text x="342" y="366.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="end">SDA · MPU6050</text>
+<circle cx="400" cy="392" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="396" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A5</text>
+<line x1="389" y1="392" x2="354" y2="392" stroke="#15803d" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="388" width="8" height="8" rx="2" fill="#15803d"/>
+<text x="342" y="396.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="end">SCL · MPU6050</text>
+<circle cx="400" cy="422" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="426" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A6</text>
+<line x1="389" y1="422" x2="354" y2="422" stroke="#7d8a84" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="418" width="8" height="8" rx="2" fill="#7d8a84"/>
+<text x="342" y="426.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">free · analog in only</text>
+<circle cx="400" cy="452" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="456" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">A7</text>
+<line x1="389" y1="452" x2="354" y2="452" stroke="#7d8a84" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="448" width="8" height="8" rx="2" fill="#7d8a84"/>
+<text x="342" y="456.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">free · analog in only</text>
+<circle cx="400" cy="482" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="486" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">5V</text>
+<line x1="389" y1="482" x2="354" y2="482" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="478" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="342" y="486.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">5 V</text>
+<circle cx="400" cy="512" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="516" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">RST</text>
+<line x1="389" y1="512" x2="354" y2="512" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="508" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="342" y="516.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">reset</text>
+<circle cx="400" cy="542" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="546" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">GND</text>
+<line x1="389" y1="542" x2="354" y2="542" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="538" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="342" y="546.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">ground</text>
+<circle cx="400" cy="572" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="415" y="576" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="start">VIN</text>
+<line x1="389" y1="572" x2="354" y2="572" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="350" y="568" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="342" y="576.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="end">VIN</text>
+<circle cx="580" cy="152" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="156" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D12</text>
+<line x1="591" y1="152" x2="626" y2="152" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="148" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="638" y="156.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">AIN1 · left motor dir</text>
+<circle cx="580" cy="182" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="186" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D11</text>
+<line x1="591" y1="182" x2="626" y2="182" stroke="#ca8a04" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="178" width="8" height="8" rx="2" fill="#ca8a04"/>
+<text x="638" y="186.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">buzzer</text>
+<circle cx="580" cy="212" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="216" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D10</text>
+<line x1="591" y1="212" x2="626" y2="212" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="208" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="638" y="216.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">PWMA · left motor speed</text>
+<circle cx="580" cy="242" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="246" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D9</text>
+<line x1="591" y1="242" x2="626" y2="242" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="238" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="638" y="246.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">PWMB · right motor speed</text>
+<circle cx="580" cy="272" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="276" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D8</text>
+<line x1="591" y1="272" x2="626" y2="272" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="268" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="638" y="276.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">STBY · LOW = motors off</text>
+<circle cx="580" cy="302" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="306" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D7</text>
+<line x1="591" y1="302" x2="626" y2="302" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="298" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="638" y="306.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">BIN1 · right motor dir</text>
+<circle cx="580" cy="332" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="336" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D6</text>
+<line x1="591" y1="332" x2="626" y2="332" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="328" width="8" height="8" rx="2" fill="#c2410c"/>
+<text x="638" y="336.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">BIN2 · right motor dir</text>
+<circle cx="580" cy="362" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="366" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D5</text>
+<line x1="591" y1="362" x2="626" y2="362" stroke="#0e7490" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="358" width="8" height="8" rx="2" fill="#0e7490"/>
+<text x="638" y="366.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">ECHO · sonar</text>
+<circle cx="580" cy="392" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="396" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D4</text>
+<line x1="591" y1="392" x2="626" y2="392" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="388" width="8" height="8" rx="2" fill="#7c3aed"/>
+<text x="638" y="396.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">right encoder · PCINT20</text>
+<circle cx="580" cy="422" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="426" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D3</text>
+<line x1="591" y1="422" x2="626" y2="422" stroke="#0e7490" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="418" width="8" height="8" rx="2" fill="#0e7490"/>
+<text x="638" y="426.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">TRIG · sonar</text>
+<circle cx="580" cy="452" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="456" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D2</text>
+<line x1="591" y1="452" x2="626" y2="452" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="448" width="8" height="8" rx="2" fill="#7c3aed"/>
+<text x="638" y="456.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">left encoder · INT0</text>
+<circle cx="580" cy="482" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="486" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">GND</text>
+<line x1="591" y1="482" x2="626" y2="482" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="478" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="638" y="486.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="start">ground</text>
+<circle cx="580" cy="512" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="516" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">RST</text>
+<line x1="591" y1="512" x2="626" y2="512" stroke="#a3aba7" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="508" width="8" height="8" rx="2" fill="#a3aba7"/>
+<text x="638" y="516.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="400" fill="#5d6762" text-anchor="start">reset</text>
+<circle cx="580" cy="542" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="546" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D0</text>
+<line x1="591" y1="542" x2="626" y2="542" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="538" width="8" height="8" rx="2" fill="#1d4ed8"/>
+<text x="638" y="546.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">RX · USB / HC-06</text>
+<circle cx="580" cy="572" r="7" fill="#c9a64a" stroke="#16302a" stroke-width="1.5"/>
+<text x="565" y="576" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#e9efe9" text-anchor="end">D1</text>
+<line x1="591" y1="572" x2="626" y2="572" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+<rect x="622" y="568" width="8" height="8" rx="2" fill="#1d4ed8"/>
+<text x="638" y="576.5" font-family="'DejaVu Sans Mono', Menlo, Consolas, monospace" font-size="13" font-weight="600" fill="#1d2321" text-anchor="start">TX · USB / HC-06</text>
+<line x1="40" y1="604" x2="940" y2="604" stroke="#d3d8d4"/>
+<rect x="40" y="620" width="12" height="12" rx="3" fill="#c2410c"/>
+<text x="58" y="630" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">Motor driver TB6612</text>
+<rect x="228.4" y="620" width="12" height="12" rx="3" fill="#7c3aed"/>
+<text x="246.4" y="630" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">Wheel encoders</text>
+<rect x="378.79999999999995" y="620" width="12" height="12" rx="3" fill="#15803d"/>
+<text x="396.79999999999995" y="630" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">IMU MPU6050</text>
+<rect x="506.4" y="620" width="12" height="12" rx="3" fill="#0e7490"/>
+<text x="524.4" y="630" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">Ultrasonic HC-SR04</text>
+<rect x="687.1999999999999" y="620" width="12" height="12" rx="3" fill="#ca8a04"/>
+<text x="705.1999999999999" y="630" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">Buzzer</text>
+<rect x="40" y="646" width="12" height="12" rx="3" fill="#be185d"/>
+<text x="58" y="656" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">RGB LED (active low)</text>
+<rect x="236.0" y="646" width="12" height="12" rx="3" fill="#1d4ed8"/>
+<text x="254.0" y="656" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">USB serial 115200</text>
+<rect x="409.2" y="646" width="12" height="12" rx="3" fill="#7d8a84"/>
+<text x="427.2" y="656" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">Free</text>
+<rect x="483.6" y="646" width="12" height="12" rx="3" fill="#a3aba7"/>
+<text x="501.6" y="656" font-family="'DejaVu Sans', 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="400" fill="#1d2321" text-anchor="start">Power / reset</text>
+</svg>

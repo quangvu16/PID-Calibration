@@ -4,6 +4,8 @@
 
 Phone app for this robot: [download BalanceTuner-v1.1.apk](releases/BalanceTuner-v1.1.apk).
 
+![ZYC0049 pinout: Arduino Nano pins and what each one connects to](pinout.svg)
+
 Every Arduino Nano (ATmega328P) pin and what the `BalancingRobotTuner` firmware connects to it.
 Taken from the pin definitions, `Pin_Config()` and `setup()` in
 `BalancingRobotTuner/BalancingRobotTuner.ino`; left/right for the motors comes from the
